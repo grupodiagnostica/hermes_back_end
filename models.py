@@ -26,7 +26,6 @@ class Pessoa(db.Model):
         self.telefone = telefone
         self.cargo = cargo
     
-
 class Paciente(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     id_pessoa = db.Column(db.String(36), db.ForeignKey('pessoa.id'), nullable=False)
@@ -91,7 +90,9 @@ class Medico(db.Model):
     id_pessoa = db.Column(db.String(36), db.ForeignKey('pessoa.id'), nullable=False)
     crm = db.Column(db.String(15), unique=True, nullable=False)
     especialidade = db.Column(db.String(100))
-    def __init__(self, id_pessoa, crm, especialidade, id=None):
+    senha = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    def __init__(self, id_pessoa, crm, especialidade,senha,email, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
@@ -99,6 +100,8 @@ class Medico(db.Model):
         self.id_pessoa = id_pessoa
         self.crm = crm
         self.especialidade = especialidade
+        self.senha = senha
+        self.email = email
 
 class Doenca(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)

@@ -11,7 +11,16 @@ def create_pessoa():
         nova_pessoa = Pessoa(**data)
         db.session.add(nova_pessoa)
         db.session.commit()
-        return jsonify({'message': 'Pessoa criada com sucesso'}), 201
+        pessoaJson = {
+            'id': nova_pessoa.id,
+            'cpf': nova_pessoa.cpf,
+            'data_nascimento': str(nova_pessoa.data_nascimento),
+            'nome': nova_pessoa.nome,
+            'telefone': nova_pessoa.telefone,
+            'cargo': nova_pessoa.cargo
+        }
+        
+        return jsonify({'data': pessoaJson}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
