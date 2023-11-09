@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
 from models import db, Diagnostico
 
-diagnostico_bp = Blueprint('diagnostico', __name__, url_prefix='/diagnostico')
+diagnostico_bp = Blueprint('diagnostico', __name__)
 
 # Rota para criar um novo diagnóstico
-@diagnostico_bp.route('/', methods=['POST'])
+@diagnostico_bp.route('/diagnostico', methods=['POST'])
 def create_diagnostico():
     try:
         data = request.json
@@ -16,7 +16,7 @@ def create_diagnostico():
         return jsonify({'error': str(e)}), 400
 
 # Rota para obter diagnósticos com filtros
-@diagnostico_bp.route('/', methods=['GET'])
+@diagnostico_bp.route('/diagnostico', methods=['GET'])
 def get_diagnosticos():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
@@ -57,7 +57,7 @@ def get_diagnosticos():
     return jsonify(diagnosticos_list)
 
 # Rota para atualizar os dados de um diagnóstico
-@diagnostico_bp.route('/<int:diagnostico_id>', methods=['PUT'])
+@diagnostico_bp.route('/diagnostico/<int:diagnostico_id>', methods=['PUT'])
 def update_diagnostico(diagnostico_id):
     try:
         data = request.json
@@ -72,7 +72,7 @@ def update_diagnostico(diagnostico_id):
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir um diagnóstico
-@diagnostico_bp.route('/<int:diagnostico_id>', methods=['DELETE'])
+@diagnostico_bp.route('/diagnostico/<int:diagnostico_id>', methods=['DELETE'])
 def delete_diagnostico(diagnostico_id):
     try:
         diagnostico = Diagnostico.query.get(diagnostico_id)

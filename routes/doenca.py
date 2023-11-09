@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
 from models import db, Doenca
 
-doenca_bp = Blueprint('doenca', __name__, url_prefix='/doenca')
+doenca_bp = Blueprint('doenca', __name__)
 
 # Rota para criar uma nova doença
-@doenca_bp.route('/', methods=['POST'])
+@doenca_bp.route('/doenca', methods=['POST'])
 def create_doenca():
     try:
         data = request.json
@@ -16,7 +16,7 @@ def create_doenca():
         return jsonify({'error': str(e)}), 400
 
 # Rota para obter doenças
-@doenca_bp.route('/', methods=['GET'])
+@doenca_bp.route('/doenca', methods=['GET'])
 def get_doencas():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
@@ -45,7 +45,7 @@ def get_doencas():
     return jsonify(doencas_list)
 
 # Rota para atualizar os dados de uma doença
-@doenca_bp.route('/<string:doenca_id>', methods=['PUT'])
+@doenca_bp.route('/doenca/<string:doenca_id>', methods=['PUT'])
 def update_doenca(doenca_id):
     try:
         data = request.json
@@ -60,7 +60,7 @@ def update_doenca(doenca_id):
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir uma doença
-@doenca_bp.route('/<string:doenca_id>', methods=['DELETE'])
+@doenca_bp.route('/doenca/<string:doenca_id>', methods=['DELETE'])
 def delete_doenca(doenca_id):
     try:
         doenca = Doenca.query.get(doenca_id)

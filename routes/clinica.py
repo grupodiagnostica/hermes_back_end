@@ -10,10 +10,10 @@ import uuid
 from models import Clinica
 from models import db
 
-clinica_bp = Blueprint('clinica', __name__, url_prefix='/clinica')
+clinica_bp = Blueprint('clinica', __name__)
 
 # Rota para criar uma nova clínica
-@clinica_bp.route('/', methods=['POST'])
+@clinica_bp.route('/clinica', methods=['POST'])
 def create_clinica():
     try:
         data = request.json
@@ -24,7 +24,7 @@ def create_clinica():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-@clinica_bp.route('/', methods=['GET'])
+@clinica_bp.route('/clinica', methods=['GET'])
 def get_clinicas():
     # Obtenha os parâmetros de consulta da URL
     cnpj = request.args.get('cnpj')
@@ -55,7 +55,7 @@ def get_clinicas():
 
 
 # Rota para atualizar os dados de uma clínica
-@clinica_bp.route('/<string:clinica_id>', methods=['PUT'])
+@clinica_bp.route('/clinica/<string:clinica_id>', methods=['PUT'])
 def update_clinica(clinica_id):
     try:
         data = request.json
@@ -70,7 +70,7 @@ def update_clinica(clinica_id):
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir uma clínica
-@clinica_bp.route('/<string:clinica_id>', methods=['DELETE'])
+@clinica_bp.route('/clinica/<string:clinica_id>', methods=['DELETE'])
 def delete_clinica(clinica_id):
     try:
         clinica = Clinica.query.get(clinica_id)

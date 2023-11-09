@@ -90,7 +90,7 @@ class Medico(db.Model):
     id_pessoa = db.Column(db.String(36), db.ForeignKey('pessoa.id'), nullable=False)
     crm = db.Column(db.String(15), unique=True, nullable=False)
     especialidade = db.Column(db.String(100))
-    senha = db.Column(db.String(100))
+    senha = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     def __init__(self, id_pessoa, crm, especialidade,senha,email, id=None):
         if id is None:

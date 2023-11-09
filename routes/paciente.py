@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import Paciente,db
 
-paciente_bp = Blueprint('paciente', __name__, url_prefix='/paciente')
+paciente_bp = Blueprint('paciente', __name__)
 
 # Rota para criar um novo registro
 @paciente_bp.route('/paciente', methods=['POST'])

@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
 from models import Pessoa,db
+from flask_cors import CORS
 
-pessoa_bp = Blueprint('pessoa', __name__, url_prefix='/pessoa')
+pessoa_bp = Blueprint('pessoa', __name__)
 
-# Rota para criar um novo registro
 @pessoa_bp.route('/pessoa', methods=['POST'])
 def create_pessoa():
     try:
@@ -20,7 +20,7 @@ def create_pessoa():
             'cargo': nova_pessoa.cargo
         }
         
-        return jsonify({'data': pessoaJson}), 201
+        return jsonify({'data': pessoaJson}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 

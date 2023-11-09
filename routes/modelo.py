@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
 from models import db, Modelo
 
-modelo_bp = Blueprint('modelo', __name__, url_prefix='/modelo')
+modelo_bp = Blueprint('modelo', __name__)
 
 # Rota para criar um novo modelo
-@modelo_bp.route('/', methods=['POST'])
+@modelo_bp.route('/modelo', methods=['POST'])
 def create_modelo():
     try:
         data = request.json
@@ -16,7 +16,7 @@ def create_modelo():
         return jsonify({'error': str(e)}), 400
 
 # Rota para obter modelos com filtros
-@modelo_bp.route('/', methods=['GET'])
+@modelo_bp.route('/modelo', methods=['GET'])
 def get_modelos():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
@@ -55,7 +55,7 @@ def get_modelos():
 
 
 # Rota para atualizar os dados de um modelo
-@modelo_bp.route('/<string:modelo_id>', methods=['PUT'])
+@modelo_bp.route('/modelo/<string:modelo_id>', methods=['PUT'])
 def update_modelo(modelo_id):
     try:
         data = request.json
@@ -70,7 +70,7 @@ def update_modelo(modelo_id):
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir um modelo
-@modelo_bp.route('/<string:modelo_id>', methods=['DELETE'])
+@modelo_bp.route('/modelo/<string:modelo_id>', methods=['DELETE'])
 def delete_modelo(modelo_id):
     try:
         modelo = Modelo.query.get(modelo_id)

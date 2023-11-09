@@ -16,26 +16,30 @@ from routes.diagnostico import diagnostico_bp
 from routes.funcionario import funcionario_bp
 from routes.medico import medico_bp
 from routes.modelo import modelo_bp
+from models import Pessoa
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 
 app = Flask(__name__)
 
-CORS(app)
-# Carregue o modelo .h5
+CORS(app, origins='*')
+CORS(pessoa_bp, origins='*')
+app.config['JWT_SECRET_KEY'] = 'hermes123'
+jwt = JWTManager(app)
+# Carrega o modelo .h5
 model = tf.keras.models.load_model('./modeloXception.h5')
 
-# Substitua os valores abaixo pelas suas credenciais e informações de conexão
 db_user = 'postgres'
 db_password = '123'
 db_host = 'localhost'
 db_port = '5432'
 db_name = 'hermesdb'
 
-# Crie uma string de conexão para o PostgreSQL
+# Cria uma string de conexão para o PostgreSQL
 connection_string = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
 db.init_app(app)
 
-# Registre os blueprints de cada recurso
+# Registra os blueprints de cada recurso
 app.register_blueprint(pessoa_bp)
 app.register_blueprint(paciente_bp)
 app.register_blueprint(modelo_bp)
@@ -45,12 +49,11 @@ app.register_blueprint(diagnostico_bp)
 app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
 
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         print(request.files)
-        # print(model)
-        # Recebe a imagem do front-end
         image = request.files['image'].read()
 
 
@@ -79,4 +82,4 @@ def predict():
         return response
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host="localhost", port=5000)
