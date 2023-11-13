@@ -26,7 +26,11 @@ CORS(pessoa_bp, origins='*')
 app.config['JWT_SECRET_KEY'] = 'hermes123'
 jwt = JWTManager(app)
 # Carrega o modelo .h5
-model = tf.keras.models.load_model('./modeloXception.h5')
+model1 = tf.keras.models.load_model('./modeloXception.h5')
+model2 = tf.keras.models.load_model('./CNN_modelvgg19.h5')
+models = []
+models.append(model1)
+models.append(model2)
 
 db_user = 'postgres'
 db_password = '123'
@@ -49,11 +53,24 @@ app.register_blueprint(diagnostico_bp)
 app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
 
+def predictModel(model_id, image):
+    model = None
+    if model_id == 1:
+        model = model1
+    else:
+        model = model2
 
-@app.route('/predict', methods=['POST'])
-def predict():
+    predictions = model.predict(image)
+
+    return predictions
+    
+
+
+@app.route('/predict/<int:model_id>', methods=['POST'])
+def predict(model_id):
     try:
-        print(request.files)
+        print(model_id)
+
         image = request.files['image'].read()
 
 
@@ -67,8 +84,7 @@ def predict():
 
         # Normalizar os valores dos pixels para estar na faixa entre 0 e 1
         image = tf.cast(image, tf.float32) / 255.0
-        print(image)
-
+        model = models[model_id - 1]
         # Faça a previsão
         predictions = model.predict(image)
         predictions = predictions.tolist()

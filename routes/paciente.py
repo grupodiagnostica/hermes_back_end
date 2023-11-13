@@ -52,7 +52,15 @@ def get_pacientes():
             'sexo': paciente.sexo,
             'tipo_sanguineo': paciente.tipo_sanguineo,
             'cidade': paciente.cidade,
-            'estado': paciente.estado
+            'estado': paciente.estado,
+            'pessoa': {
+                'id': paciente.pessoa.id,
+                'cpf': paciente.pessoa.cpf,
+                'data_nascimento': str(paciente.pessoa.data_nascimento),
+                'nome': paciente.pessoa.nome,
+                'telefone': paciente.pessoa.telefone,
+                'cargo': paciente.pessoa.cargo
+            }
         })
 
     return jsonify(pacientes_list)
