@@ -33,6 +33,8 @@ def get_pessoas():
     data_nascimento = request.args.get('data_nascimento')
     telefone = request.args.get('telefone')
     cargo = request.args.get('cargo')
+    # orderby = request.args.get('orderby')
+    orderby = 'nome'
 
     # Consulta inicial para todas as pessoas
     query = Pessoa.query
@@ -50,7 +52,7 @@ def get_pessoas():
         query = query.filter(Pessoa.telefone == telefone)
     if cargo:
         query = query.filter(Pessoa.cargo.ilike(f"%{cargo}%"))
-
+    
     # Execute a consulta
     pessoas = query.all()
 
@@ -74,12 +76,22 @@ def update_pessoa(pessoa_id):
     try:
         data = request.json
         pessoa = Pessoa.query.get(pessoa_id)
+        print(pessoa)
         if not pessoa:
             return jsonify({'error': 'Pessoa não encontrada'}), 404
         for key, value in data.items():
             setattr(pessoa, key, value)
+
+        pessoaJson = {
+            'id': pessoa.id,
+            'cpf': pessoa.cpf,
+            'data_nascimento': str(pessoa.data_nascimento),
+            'nome': pessoa.nome,
+            'telefone': pessoa.telefone,
+            'cargo': pessoa.cargo
+        }
         db.session.commit()
-        return jsonify({'message': 'Dados da pessoa atualizados com sucesso'})
+        return jsonify({'data': pessoaJson})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
