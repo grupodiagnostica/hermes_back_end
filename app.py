@@ -23,6 +23,14 @@ from tensorflow import keras
 from keras.models import  Model
 from PIL import Image
 import io
+
+# Defina a classe do otimizador personalizado
+class CustomAdam(tf.keras.optimizers.Adam):
+    pass
+
+# Registre o otimizador personalizado
+tf.keras.utils.get_custom_objects()['CustomAdam'] = CustomAdam
+
 app = Flask(__name__)
 
 CORS(app, origins='*')
@@ -33,7 +41,7 @@ jwt = JWTManager(app)
 # Carrega o modelo .h5
 # model1 = tf.keras.models.load_model('./modeloXception.h5')
 # model2 = tf.keras.models.load_model('./CNN_modelvgg19.h5')
-model1 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5')
+model1 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5', custom_objects={'CustomAdam': CustomAdam})
 models = []
 models.append(model1)
 
