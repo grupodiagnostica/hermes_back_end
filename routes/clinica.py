@@ -1,9 +1,4 @@
 from flask import Blueprint, request, jsonify
-import tensorflow as tf
-import numpy as np
-import cv2
-from flask_cors import CORS
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import uuid
