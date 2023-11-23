@@ -5,7 +5,7 @@ from models import db
 from models import Pessoa, Paciente, Funcionario, Medico, Doenca, Modelo, Diagnostico
 
 # Substitua os valores abaixo pelas suas credenciais e informações de conexão
-db_user = 'postgres'
+db_user = 'hermesuser'
 db_password = '123'
 db_host = 'localhost'
 db_port = '5432'
