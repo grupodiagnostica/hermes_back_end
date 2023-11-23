@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify
 import tensorflow as tf
 import numpy as np
-import cv2
 from flask_cors import CORS
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 import uuid
 from models import db
 from routes.pessoa import pessoa_bp
