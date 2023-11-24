@@ -35,10 +35,11 @@ jwt = JWTManager(app)
 
 # Custom Adam optimizer with weight decay
 class AdamW(tf.keras.optimizers.Adam):
-    def __init__(self, weight_decay, use_ema=False, *args, **kwargs):
+    def __init__(self, weight_decay, use_ema=False,ema_momentum=None, *args, **kwargs):
         super(AdamW, self).__init__(*args, **kwargs)
         self.weight_decay = weight_decay
         self.use_ema = use_ema
+        self.ema_momentum = ema_momentum
         self._set_hyper('weight_decay', weight_decay)
 
     def _resource_apply_dense(self, grad, var, apply_state=None):
@@ -49,6 +50,16 @@ class AdamW(tf.keras.optimizers.Adam):
         lr_t = lr_t * (1.0 - self.weight_decay)
         var_update = super(AdamW, self)._resource_apply_dense(grad, var, apply_state)
         return var_update.assign(var_update.read() - lr_t * var)
+    
+    def get_config(self):
+        config = super(AdamW, self).get_config()
+        config.update({'weight_decay': self.weight_decay, 'ema_momentum': self.ema_momentum})
+        return config
+
+
+# Example of loading the model
+custom_optimizer = AdamW(weight_decay=1e-5, ema_momentum=0.9, use_ema=True)
+model1 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5', custom_objects={'AdamW': custom_optimizer}, compile=True, options=None)
 
 
 
