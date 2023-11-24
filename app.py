@@ -22,6 +22,8 @@ from scipy import ndimage
 from PIL import Image
 import io
 
+
+
 app = Flask(__name__)
 
 CORS(app, origins='*')
@@ -29,7 +31,26 @@ CORS(pessoa_bp, origins='*')
 app.config['JWT_SECRET_KEY'] = 'hermes123'
 jwt = JWTManager(app)
 
-custom_optimizer = tf.optimizers.Adam(learning_rate=0.001, name='CustomAdam')
+# custom_optimizer = tf.optimizers.Adam(learning_rate=0.001, name='CustomAdam')
+
+# Custom Adam optimizer with weight decay
+class AdamW(tf.keras.optimizers.Adam):
+    def __init__(self, weight_decay, *args, **kwargs):
+        super(AdamW, self).__init__(*args, **kwargs)
+        self.weight_decay = weight_decay
+        self._set_hyper('weight_decay', weight_decay)
+
+    def _resource_apply_dense(self, grad, var, apply_state=None):
+        var_device, var_dtype = var.device, var.dtype.base_dtype
+        lr_t = self.lr
+        if apply_state is not None and 'lr_t' in apply_state:
+            lr_t = apply_state['lr_t']
+        lr_t = lr_t * (1.0 - self.weight_decay)
+        var_update = super(AdamW, self)._resource_apply_dense(grad, var, apply_state)
+        return var_update.assign(var_update.read() - lr_t * var)
+
+# Example of using AdamW
+custom_optimizer = AdamW(weight_decay=1e-5)
 
 # Carrega o modelo .h5
 # model1 = tf.keras.models.load_model('./modeloXception.h5')
