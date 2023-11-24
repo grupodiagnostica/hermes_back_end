@@ -19,8 +19,6 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
 import scipy as sp
 from scipy import ndimage
-from tensorflow import keras
-from keras.models import  Model
 from PIL import Image
 import io
 
@@ -40,7 +38,7 @@ models.append(model1)
 
 
 gap_weights = model1.layers[-1].get_weights()[0]
-cam_model  = Model(inputs=[model1.input], outputs=[model1.layers[-8].output, model1.output])
+cam_model  = tf.keras.models.Model(inputs=[model1.input], outputs=[model1.layers[-8].output, model1.output])
 
 def cam_result(features, results) -> tuple:
   # there is only one image in the batch so we index at `0`
