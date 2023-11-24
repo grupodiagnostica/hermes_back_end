@@ -51,7 +51,7 @@ class AdamW(tf.keras.optimizers.Adam):
 
 
 # Example of using AdamW
-custom_optimizer = AdamW(weight_decay=1e-5, use_ema=True)
+custom_optimizer = AdamW(weight_decay=1e-5)
 
 # Carrega o modelo .h5
 # model1 = tf.keras.models.load_model('./modeloXception.h5')
