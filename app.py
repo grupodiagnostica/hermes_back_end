@@ -59,7 +59,7 @@ class AdamW(tf.keras.optimizers.Adam):
 
 
 # Example of loading the model
-custom_optimizer = AdamW(weight_decay=1e-5, ema_momentum=0.9, use_ema=True, , ema_overwrite_frequency=10)
+custom_optimizer = AdamW(weight_decay=1e-5, ema_momentum=0.9, use_ema=True, ema_overwrite_frequency=10)
 
 
 
