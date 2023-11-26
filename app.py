@@ -67,14 +67,14 @@ custom_optimizer = tf.keras.optimizers.Adam(
     beta_2=0.999,
     epsilon=1e-07,
     amsgrad=False,
-    # weight_decay=None,
+    weight_decay=1e-5,
     clipnorm=None,
     clipvalue=None,
     global_clipnorm=None,
-    # use_ema=False,
-    # ema_momentum=0.99,
-    # ema_overwrite_frequency=None,
-    # jit_compile=True,
+    use_ema=False,
+    ema_momentum=0.99,
+    ema_overwrite_frequency=None,
+    jit_compile=True,
     name='Adam'
 )
 
