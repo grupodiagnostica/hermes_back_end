@@ -35,11 +35,12 @@ jwt = JWTManager(app)
 
 # Custom Adam optimizer with weight decay
 class AdamW(tf.keras.optimizers.Adam):
-    def __init__(self, weight_decay, use_ema=False,ema_momentum=None, ema_overwrite_frequency=None, *args, **kwargs):
+    def __init__(self, weight_decay, use_ema=False,ema_momentum=None,jit_compile=None, ema_overwrite_frequency=None, *args, **kwargs):
         super(AdamW, self).__init__(*args, **kwargs)
         self.weight_decay = weight_decay
         self.use_ema = use_ema
         self.ema_momentum = ema_momentum
+        self.jit_compile = jit_compile
         self.ema_overwrite_frequency = ema_overwrite_frequency
         self._set_hyper('weight_decay', weight_decay)
 
@@ -59,7 +60,23 @@ class AdamW(tf.keras.optimizers.Adam):
 
 
 # Example of loading the model
-custom_optimizer = AdamW(weight_decay=1e-5, ema_momentum=0.9, use_ema=True, ema_overwrite_frequency=10)
+# custom_optimizer = AdamW(weight_decay=1e-5, ema_momentum=0.9, use_ema=True, ema_overwrite_frequency=10, jit_compile=True)
+custom_optimizer = tf.keras.optimizers.Adam(
+    learning_rate=0.001,
+    beta_1=0.9,
+    beta_2=0.999,
+    epsilon=1e-07,
+    amsgrad=False,
+    weight_decay=None,
+    clipnorm=None,
+    clipvalue=None,
+    global_clipnorm=None,
+    use_ema=False,
+    ema_momentum=0.99,
+    ema_overwrite_frequency=None,
+    jit_compile=True,
+    name='Adam'
+)
 
 
 
