@@ -59,23 +59,20 @@ class AdamW(tf.keras.optimizers.Adam):
 
 # Example of loading the model
 custom_optimizer = AdamW(weight_decay=1e-5, ema_momentum=0.9, use_ema=True)
-model1 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5', custom_objects={'AdamW': custom_optimizer}, compile=True, options=None)
 
 
-
-# Example of using AdamW
-custom_optimizer = AdamW(weight_decay=1e-5, use_ema=True)
 
 # Carrega o modelo .h5
-# model1 = tf.keras.models.load_model('./modeloXception.h5')
+model1 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5')
 # model2 = tf.keras.models.load_model('./CNN_modelvgg19.h5')
-model1 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5', custom_objects={'Custom>Adam': custom_optimizer}, compile=True, options=None)
+model2 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5', custom_objects={'Custom>Adam': custom_optimizer}, compile=True, options=None)
 models = []
 models.append(model1)
+models.append(model2)
 
 
-gap_weights = model1.layers[-1].get_weights()[0]
-cam_model  = tf.keras.models.Model(inputs=[model1.input], outputs=[model1.layers[-8].output, model1.output])
+gap_weights = model2.layers[-1].get_weights()[0]
+cam_model  = tf.keras.models.Model(inputs=[model2.input], outputs=[model2.layers[-8].output, model2.output])
 
 def cam_result(features, results) -> tuple:
   # there is only one image in the batch so we index at `0`
@@ -124,7 +121,7 @@ def predict(model_id):
 
      
         
-        if model_id == 1:
+        if model_id == 2:
             image = tf.image.rgb_to_grayscale(image)
             image = tf.cast(image, tf.float32) / 255.0
             features, results = cam_model.predict(image)
