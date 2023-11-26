@@ -63,11 +63,11 @@ custom_optimizer = AdamW(weight_decay=1e-5, ema_momentum=0.9, use_ema=True)
 
 
 # Carrega o modelo .h5
-model1 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5')
+# model1 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5')
 # model2 = tf.keras.models.load_model('./CNN_modelvgg19.h5')
 model2 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5', custom_objects={'Custom>Adam': custom_optimizer}, compile=True, options=None)
 models = []
-models.append(model1)
+# models.append(model1)
 models.append(model2)
 
 
