@@ -76,13 +76,24 @@ app.register_blueprint(diagnostico_bp)
 app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
 
-oracle_config = {
-    'user': 'ocid1.user.oc1..aaaaaaaa6a4bylwrjvsezaa3sticb2zvv5rrxircngkgorjnad2s4hhw3r5q',
-    'fingerprint': '07:03:15:66:bc:1b:e0:aa:02:05:53:d4:eb:85:40:3f',
-    'tenancy': 'ocid1.tenancy.oc1..aaaaaaaaigqqa2ytmyipylxftzjocl44gb4vjql45atvatul73tjui6kmwka',
-    'region': 'sa-saopaulo-1',
-    'key_file': './apikey.pem',
-}
+# Configuração do cliente OCI
+config = oci.config.from_file("~/.oci/config", "DEFAULT")
+
+# Cliente Object Storage
+object_storage_client = oci.object_storage.ObjectStorageClient(config)
+
+# Namespace é necessário para trabalhar com buckets
+namespace = object_storage_client.get_namespace().data
+
+# Nome do bucket que você deseja acessar
+bucket_name = "pdfs"
+
+# [DEFAULT]
+# user=ocid1.user.oc1..aaaaaaaa6a4bylwrjvsezaa3sticb2zvv5rrxircngkgorjnad2s4hhw3r5q
+# fingerprint=04:03:b8:07:61:65:b1:95:9a:05:3c:c5:da:1c:43:0c
+# tenancy=ocid1.tenancy.oc1..aaaaaaaaigqqa2ytmyipylxftzjocl44gb4vjql45atvatul73tjui6kmwka
+# region=sa-saopaulo-1
+# key_file=<path to your private keyfile> # TODO
 
 bucket_name = 'pdfs'
 pdf_file_path = 'path/to/your/file.pdf'
@@ -99,12 +110,12 @@ def upload_pdf():
         pdf_data = base64.b64decode(pdf_data_uri.split(',')[1])
 
         # Inicializar o cliente do Oracle Cloud Object Storage
-        session = oci.config.from_file(oracle_config['key_file'], profile_name='DEFAULT')
-        object_storage_client = oci.object_storage.ObjectStorageClient(session)
+        # print(oracle_config['key_file'])
 
         # Fazer o upload do PDF para o bucket no Oracle Cloud Object Storage
         object_name = 'pdf01.pdf'  # Escolha um nome para o arquivo no bucket
         object_storage_client.put_object(
+            namespace_name=namespace,
             bucket_name=bucket_name,
             object_name=object_name,
             content_type='application/pdf',
