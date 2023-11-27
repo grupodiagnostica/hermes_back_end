@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import uuid
-
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -143,23 +143,23 @@ class Modelo(db.Model):
 
 class Diagnostico(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    id_modelo = db.Column(db.String(36), db.ForeignKey('modelo.id'), nullable=False)
+    # id_modelo = db.Column(db.String(36), db.ForeignKey('modelo.id'), nullable=False)
+    modelo = db.Column(db.String(255))
     id_medico = db.Column(db.String(36), db.ForeignKey('medico.id'), nullable=False)
     data_hora = db.Column(db.DateTime, nullable=False)
-    raio_x = db.Column(db.String(100))
+    # raio_x = db.Column(db.String(100))
     id_paciente = db.Column(db.String(36), db.ForeignKey('paciente.id'), nullable=False)
     resultado = db.Column(db.String(100))
     laudo_medico = db.Column(db.Text)
 
-    def __init__(self, id_modelo, id_medico, data_hora, raio_x, id_paciente, resultado, laudo_medico, id=None):
+    def __init__(self, modelo, id_medico, data_hora, id_paciente, resultado, laudo_medico, id=None):
             if id is None:
                 self.id = str(uuid.uuid4())
             else:
                 self.id = id
-            self.id_modelo = id_modelo
+            self.modelo = modelo
             self.id_medico = id_medico
-            self.data_hora = data_hora
-            self.raio_x = raio_x
+            self.data_hora = datetime.utcnow() 
             self.id_paciente = id_paciente
             self.resultado = resultado
             self.laudo_medico = laudo_medico

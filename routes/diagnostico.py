@@ -10,7 +10,7 @@ def create_diagnostico():
         data = request.json
         novo_diagnostico = Diagnostico(**data)
         db.session.add(novo_diagnostico)
-        db.session.commit()
+        db.session.commit() 
         return jsonify({'message': 'Diagnóstico criado com sucesso'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -20,7 +20,6 @@ def create_diagnostico():
 def get_diagnosticos():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
-    id_modelo = request.args.get('id_modelo')
     id_medico = request.args.get('id_medico')
     id_paciente = request.args.get('id_paciente')
 
@@ -30,8 +29,6 @@ def get_diagnosticos():
     # Filtre a consulta com base nos parâmetros de consulta
     if id:
         query = query.filter(Diagnostico.id == id)
-    if id_modelo:
-        query = query.filter(Diagnostico.id_modelo == id_modelo)
     if id_medico:
         query = query.filter(Diagnostico.id_medico == id_medico)
     if id_paciente:

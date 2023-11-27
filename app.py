@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 from flask_cors import CORS
 
-from flask import Flask
+from flask import Flask, redirect, render_template
 import uuid
 from models import db
 from routes.pessoa import pessoa_bp
@@ -21,8 +21,9 @@ import scipy as sp
 from scipy import ndimage
 from PIL import Image
 import io
-
-
+import boto3
+import os
+import oci
 
 app = Flask(__name__)
 
@@ -30,55 +31,6 @@ CORS(app, origins='*')
 CORS(pessoa_bp, origins='*')
 app.config['JWT_SECRET_KEY'] = 'hermes123'
 jwt = JWTManager(app)
-
-# custom_optimizer = tf.optimizers.Adam(learning_rate=0.001, name='CustomAdam')
-
-# # Custom Adam optimizer with weight decay
-# class AdamW(tf.keras.optimizers.Adam):
-#     def __init__(self, weight_decay, use_ema=False,ema_momentum=None,jit_compile=None, ema_overwrite_frequency=None, *args, **kwargs):
-#         super(AdamW, self).__init__(*args, **kwargs)
-#         self.weight_decay = weight_decay
-#         self.use_ema = use_ema
-#         self.ema_momentum = ema_momentum
-#         self.jit_compile = jit_compile
-#         self.ema_overwrite_frequency = ema_overwrite_frequency
-#         self._set_hyper('weight_decay', weight_decay)
-
-#     def _resource_apply_dense(self, grad, var, apply_state=None):
-#         var_device, var_dtype = var.device, var.dtype.base_dtype
-#         lr_t = self.lr
-#         if apply_state is not None and 'lr_t' in apply_state:
-#             lr_t = apply_state['lr_t']
-#         lr_t = lr_t * (1.0 - self.weight_decay)
-#         var_update = super(AdamW, self)._resource_apply_dense(grad, var, apply_state)
-#         return var_update.assign(var_update.read() - lr_t * var)
-    
-#     def get_config(self):
-#         config = super(AdamW, self).get_config()
-#         config.update({'weight_decay': self.weight_decay, 'ema_momentum': self.ema_momentum})
-#         return config
-
-
-# Example of loading the model
-# custom_optimizer = AdamW(weight_decay=1e-5, ema_momentum=0.9, use_ema=True, ema_overwrite_frequency=10, jit_compile=z)
-# custom_optimizer = tf.keras.optimizers.AdamW(
-#     learning_rate=0.001,
-#     weight_decay=0.004,
-#     beta_1=0.9,
-#     beta_2=0.999,
-#     epsilon=1e-07,
-#     amsgrad=False,
-#     clipnorm=None,
-#     clipvalue=None,
-#     global_clipnorm=None,
-#     use_ema=False,
-#     ema_momentum=0.99,
-#     ema_overwrite_frequency=None,
-#     jit_compile=True,
-#     name='AdamW'
-# )
-
-
 
 # Carrega o modelo .h5
 model1 = tf.keras.models.load_model('./modeloXception.h5')
@@ -124,6 +76,46 @@ app.register_blueprint(diagnostico_bp)
 app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
 
+oracle_config = {
+    'user': 'ocid1.user.oc1..aaaaaaaa6a4bylwrjvsezaa3sticb2zvv5rrxircngkgorjnad2s4hhw3r5q',
+    'fingerprint': '07:03:15:66:bc:1b:e0:aa:02:05:53:d4:eb:85:40:3f',
+    'tenancy': 'ocid1.tenancy.oc1..aaaaaaaaigqqa2ytmyipylxftzjocl44gb4vjql45atvatul73tjui6kmwka',
+    'region': 'sa-saopaulo-1',
+    'key_file': './apikey.pem',
+}
+
+bucket_name = 'pdfs'
+pdf_file_path = 'path/to/your/file.pdf'
+
+@app.route('/pdf', methods=['POST'])
+def upload_pdf():
+    try:
+        data = request.get_json()
+
+        # Certifique-se de ajustar o nome do campo conforme necessário
+        pdf_data_uri = data.get('pdfDataUri', '')
+
+        # Extrair o conteúdo do PDF a partir da URI base64
+        pdf_data = base64.b64decode(pdf_data_uri.split(',')[1])
+
+        # Inicializar o cliente do Oracle Cloud Object Storage
+        session = oci.config.from_file(oracle_config['key_file'], profile_name='DEFAULT')
+        object_storage_client = oci.object_storage.ObjectStorageClient(session)
+
+        # Fazer o upload do PDF para o bucket no Oracle Cloud Object Storage
+        object_name = 'pdf01.pdf'  # Escolha um nome para o arquivo no bucket
+        object_storage_client.put_object(
+            bucket_name=bucket_name,
+            object_name=object_name,
+            content_type='application/pdf',
+            put_object_body=io.BytesIO(pdf_data)
+        )
+
+        return jsonify({'success': True, 'object_name': object_name})
+
+    except Exception as e:
+        print('Erro durante o processamento do PDF:', e)
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/predict/<int:model_id>', methods=['POST'])
 def predict(model_id):
