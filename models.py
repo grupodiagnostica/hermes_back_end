@@ -142,7 +142,7 @@ class Modelo(db.Model):
         self.id_doenca = id_doenca
 
 class Diagnostico(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     # id_modelo = db.Column(db.String(36), db.ForeignKey('modelo.id'), nullable=False)
     modelo = db.Column(db.String(255))
     id_medico = db.Column(db.String(36), db.ForeignKey('medico.id'), nullable=False)
@@ -159,7 +159,7 @@ class Diagnostico(db.Model):
                 self.id = id
             self.modelo = modelo
             self.id_medico = id_medico
-            self.data_hora = datetime.utcnow() 
+            self.data_hora = data_hora
             self.id_paciente = id_paciente
             self.resultado = resultado
             self.laudo_medico = laudo_medico

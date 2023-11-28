@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import db, Diagnostico
+from datetime import datetime
+
 
 diagnostico_bp = Blueprint('diagnostico', __name__)
 
@@ -11,8 +13,20 @@ def create_diagnostico():
         novo_diagnostico = Diagnostico(**data)
         db.session.add(novo_diagnostico)
         db.session.commit() 
-        return jsonify({'message': 'Diagnóstico criado com sucesso'}), 201
+        print('chegou aqui')
+        novo_diagnostico_json={
+           'id' : novo_diagnostico.id,
+           'modelo' : novo_diagnostico.modelo,
+           'id_medico' : novo_diagnostico.id_medico,
+           'data_hora' : novo_diagnostico.data_hora,
+           'id_paciente' : novo_diagnostico.id_paciente,
+           'resultado' : novo_diagnostico.resultado,
+           'laudo_medico' : novo_diagnostico.laudo_medico
+        }
+               
+        return jsonify({'data': novo_diagnostico_json}), 201
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 # Rota para obter diagnósticos com filtros

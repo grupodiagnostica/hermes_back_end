@@ -88,13 +88,6 @@ namespace = object_storage_client.get_namespace().data
 # Nome do bucket que você deseja acessar
 bucket_name = "pdfs"
 
-# [DEFAULT]
-# user=ocid1.user.oc1..aaaaaaaa6a4bylwrjvsezaa3sticb2zvv5rrxircngkgorjnad2s4hhw3r5q
-# fingerprint=04:03:b8:07:61:65:b1:95:9a:05:3c:c5:da:1c:43:0c
-# tenancy=ocid1.tenancy.oc1..aaaaaaaaigqqa2ytmyipylxftzjocl44gb4vjql45atvatul73tjui6kmwka
-# region=sa-saopaulo-1
-# key_file=<path to your private keyfile> # TODO
-
 bucket_name = 'pdfs'
 pdf_file_path = 'path/to/your/file.pdf'
 
