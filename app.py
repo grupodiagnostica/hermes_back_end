@@ -21,8 +21,6 @@ import scipy as sp
 from scipy import ndimage
 from PIL import Image
 import io
-import boto3
-import oci
 from dotenv import load_dotenv
 import os
 load_dotenv()
