@@ -22,14 +22,16 @@ from scipy import ndimage
 from PIL import Image
 import io
 import boto3
-import os
 import oci
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 app = Flask(__name__)
 
 CORS(app, origins='*')
 CORS(pessoa_bp, origins='*')
-app.config['JWT_SECRET_KEY'] = 'hermes123'
+app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
 jwt = JWTManager(app)
 
 # Carrega o modelo .h5
@@ -75,51 +77,6 @@ app.register_blueprint(doenca_bp)
 app.register_blueprint(diagnostico_bp)
 app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
-
-# Configuração do cliente OCI
-config = oci.config.from_file("~/.oci/config", "DEFAULT")
-
-# Cliente Object Storage
-object_storage_client = oci.object_storage.ObjectStorageClient(config)
-
-# Namespace é necessário para trabalhar com buckets
-namespace = object_storage_client.get_namespace().data
-
-# Nome do bucket que você deseja acessar
-bucket_name = "pdfs"
-
-bucket_name = 'pdfs'
-pdf_file_path = 'path/to/your/file.pdf'
-
-@app.route('/pdf', methods=['POST'])
-def upload_pdf():
-    try:
-        data = request.get_json()
-
-        # Certifique-se de ajustar o nome do campo conforme necessário
-        pdf_data_uri = data.get('pdfDataUri', '')
-
-        # Extrair o conteúdo do PDF a partir da URI base64
-        pdf_data = base64.b64decode(pdf_data_uri.split(',')[1])
-
-        # Inicializar o cliente do Oracle Cloud Object Storage
-        # print(oracle_config['key_file'])
-
-        # Fazer o upload do PDF para o bucket no Oracle Cloud Object Storage
-        object_name = 'pdf01.pdf'  # Escolha um nome para o arquivo no bucket
-        object_storage_client.put_object(
-            namespace_name=namespace,
-            bucket_name=bucket_name,
-            object_name=object_name,
-            content_type='application/pdf',
-            put_object_body=io.BytesIO(pdf_data)
-        )
-
-        return jsonify({'success': True, 'object_name': object_name})
-
-    except Exception as e:
-        print('Erro durante o processamento do PDF:', e)
-        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/predict/<int:model_id>', methods=['POST'])
 def predict(model_id):

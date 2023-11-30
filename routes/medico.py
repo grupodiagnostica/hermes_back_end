@@ -4,18 +4,43 @@ import bcrypt
 from datetime import datetime, timedelta
 import jwt 
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from functools import wraps
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 medico_bp = Blueprint('medico', __name__)
 
 # Função para gerar um token de acesso
 def generate_access_token(email):
     payload = {
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),  # Expiração em 1 dia
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=2),  # Expiração em 1 dia
         'iat': datetime.datetime.utcnow(),
         'sub': email
     }
-    access_token = jwt.encode(payload, 'hermes123', algorithm='HS256')
+    access_token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
     return access_token
+
+# Função para verificar se o token é válido
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            print('Token ausente')
+            return jsonify({'error': 'Token ausente'}), 401
+        try:
+            data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            print('Token expirado')
+            return jsonify({'error': 'Token expirado'}), 401
+        except jwt.InvalidTokenError:
+            print('Token inválido')
+            return jsonify({'error': 'Token inválido'}), 401
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 # Rota para fazer login
 @medico_bp.route('/medico/login', methods=['POST'])
@@ -88,6 +113,7 @@ def create_medico():
         return jsonify({'error': str(e)}), 400
 
 @medico_bp.route('/medico', methods=['GET'])
+@token_required
 def get_medicos():
     # Obtenha os parâmetros de consulta da URL
     id_pessoa = request.args.get('id_pessoa')
@@ -174,6 +200,7 @@ def get_medicos():
 
 # Rota para atualizar os dados de um médico
 @medico_bp.route('/medico/<string:medico_id>', methods=['PUT'])
+@token_required
 def update_medico(medico_id):
     try:
         data = request.json
@@ -189,6 +216,7 @@ def update_medico(medico_id):
 
 # Rota para excluir um médico
 @medico_bp.route('/<string:medico_id>', methods=['DELETE'])
+@token_required
 def delete_medico(medico_id):
     try:
         medico = Medico.query.get(medico_id)

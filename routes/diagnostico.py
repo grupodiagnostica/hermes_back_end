@@ -1,19 +1,19 @@
 from flask import Blueprint, request, jsonify
 from models import db, Diagnostico
 from datetime import datetime
-
+from routes.medico import token_required
 
 diagnostico_bp = Blueprint('diagnostico', __name__)
 
 # Rota para criar um novo diagnóstico
 @diagnostico_bp.route('/diagnostico', methods=['POST'])
+@token_required
 def create_diagnostico():
     try:
         data = request.json
         novo_diagnostico = Diagnostico(**data)
         db.session.add(novo_diagnostico)
         db.session.commit() 
-        print('chegou aqui')
         novo_diagnostico_json={
            'id' : novo_diagnostico.id,
            'modelo' : novo_diagnostico.modelo,
@@ -31,6 +31,7 @@ def create_diagnostico():
 
 # Rota para obter diagnósticos com filtros
 @diagnostico_bp.route('/diagnostico', methods=['GET'])
+@token_required
 def get_diagnosticos():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
@@ -69,6 +70,7 @@ def get_diagnosticos():
 
 # Rota para atualizar os dados de um diagnóstico
 @diagnostico_bp.route('/diagnostico/<int:diagnostico_id>', methods=['PUT'])
+@token_required
 def update_diagnostico(diagnostico_id):
     try:
         data = request.json
@@ -84,6 +86,7 @@ def update_diagnostico(diagnostico_id):
 
 # Rota para excluir um diagnóstico
 @diagnostico_bp.route('/diagnostico/<int:diagnostico_id>', methods=['DELETE'])
+@token_required
 def delete_diagnostico(diagnostico_id):
     try:
         diagnostico = Diagnostico.query.get(diagnostico_id)

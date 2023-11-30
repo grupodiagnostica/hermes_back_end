@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify
 from models import db, Doenca
-
+from routes.medico import token_required
 doenca_bp = Blueprint('doenca', __name__)
 
 # Rota para criar uma nova doença
 @doenca_bp.route('/doenca', methods=['POST'])
+@token_required
 def create_doenca():
     try:
         data = request.json
@@ -17,6 +18,7 @@ def create_doenca():
 
 # Rota para obter doenças
 @doenca_bp.route('/doenca', methods=['GET'])
+@token_required
 def get_doencas():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
@@ -46,6 +48,7 @@ def get_doencas():
 
 # Rota para atualizar os dados de uma doença
 @doenca_bp.route('/doenca/<string:doenca_id>', methods=['PUT'])
+@token_required
 def update_doenca(doenca_id):
     try:
         data = request.json
@@ -61,6 +64,7 @@ def update_doenca(doenca_id):
 
 # Rota para excluir uma doença
 @doenca_bp.route('/doenca/<string:doenca_id>', methods=['DELETE'])
+@token_required
 def delete_doenca(doenca_id):
     try:
         doenca = Doenca.query.get(doenca_id)

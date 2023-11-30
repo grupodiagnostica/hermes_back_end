@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import Pessoa,db
 from flask_cors import CORS
+from routes.medico import token_required
 
 pessoa_bp = Blueprint('pessoa', __name__)
 
@@ -25,6 +26,7 @@ def create_pessoa():
         return jsonify({'error': str(e)}), 400
 
 @pessoa_bp.route('/pessoa', methods=['GET'])
+@token_required
 def get_pessoas():
     # Obtenha os parâmetros de consulta da URL
     nome = request.args.get('nome')
@@ -72,6 +74,7 @@ def get_pessoas():
 
 # Rota para atualizar os dados de uma pessoa
 @pessoa_bp.route('/pessoa/<string:pessoa_id>', methods=['PUT'])
+@token_required
 def update_pessoa(pessoa_id):
     try:
         data = request.json
@@ -97,6 +100,7 @@ def update_pessoa(pessoa_id):
 
 # Rota para excluir uma pessoa
 @pessoa_bp.route('/pessoa/<string:pessoa_id>', methods=['DELETE'])
+@token_required
 def delete_pessoa(pessoa_id):
     try:
         pessoa = Pessoa.query.get(pessoa_id)

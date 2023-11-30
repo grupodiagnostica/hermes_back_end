@@ -4,11 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 from models import Clinica
 from models import db
+from routes.medico import token_required
 
 clinica_bp = Blueprint('clinica', __name__)
 
 # Rota para criar uma nova clínica
 @clinica_bp.route('/clinica', methods=['POST'])
+@token_required
 def create_clinica():
     try:
         data = request.json
@@ -20,6 +22,7 @@ def create_clinica():
         return jsonify({'error': str(e)}), 400
 
 @clinica_bp.route('/clinica', methods=['GET'])
+@token_required
 def get_clinicas():
     # Obtenha os parâmetros de consulta da URL
     cnpj = request.args.get('cnpj')
@@ -51,6 +54,7 @@ def get_clinicas():
 
 # Rota para atualizar os dados de uma clínica
 @clinica_bp.route('/clinica/<string:clinica_id>', methods=['PUT'])
+@token_required
 def update_clinica(clinica_id):
     try:
         data = request.json
@@ -66,6 +70,7 @@ def update_clinica(clinica_id):
 
 # Rota para excluir uma clínica
 @clinica_bp.route('/clinica/<string:clinica_id>', methods=['DELETE'])
+@token_required
 def delete_clinica(clinica_id):
     try:
         clinica = Clinica.query.get(clinica_id)

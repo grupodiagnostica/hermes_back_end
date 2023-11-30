@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
 from models import Funcionario
 from models import db
-
+from routes.medico import token_required
 funcionario_bp = Blueprint('funcionario', __name__)
 
 # Rota para criar um novo funcionário
 @funcionario_bp.route('/funcionario', methods=['POST'])
+@token_required
 def create_funcionario():
     try:
         data = request.json
@@ -17,6 +18,7 @@ def create_funcionario():
         return jsonify({'error': str(e)}), 400
 
 @funcionario_bp.route('/funcionario', methods=['GET'])
+@token_required
 def get_funcionarios():
     # Obtenha os parâmetros de consulta da URL
     id_pessoa = request.args.get('id_pessoa')
@@ -56,6 +58,7 @@ def get_funcionarios():
 
 # Rota para atualizar os dados de um funcionário
 @funcionario_bp.route('/funcionario/<string:funcionario_id>', methods=['PUT'])
+@token_required
 def update_funcionario(funcionario_id):
     try:
         data = request.json
@@ -71,6 +74,7 @@ def update_funcionario(funcionario_id):
 
 # Rota para excluir um funcionário
 @funcionario_bp.route('/funcionario/<string:funcionario_id>', methods=['DELETE'])
+@token_required
 def delete_funcionario(funcionario_id):
     try:
         funcionario = Funcionario.query.get(funcionario_id)
