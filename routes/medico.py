@@ -14,8 +14,8 @@ medico_bp = Blueprint('medico', __name__)
 # Função para gerar um token de acesso
 def generate_access_token(email):
     payload = {
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=2),  # Expiração em 1 dia
-        'iat': datetime.datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(days=3),  # Expiração em 1 dia
+        'iat': datetime.utcnow(),
         'sub': email
     }
     access_token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
