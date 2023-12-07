@@ -5,14 +5,14 @@ from flask_cors import CORS
 
 from flask import Flask, redirect, render_template
 import uuid
-from models import db
+from models import db, Medico
+from routes.medico import medico_bp
 from routes.pessoa import pessoa_bp
 from routes.paciente import paciente_bp
 from routes.clinica import clinica_bp
 from routes.doenca import doenca_bp
 from routes.diagnostico import diagnostico_bp
 from routes.funcionario import funcionario_bp
-from routes.medico import medico_bp
 from routes.modelo import modelo_bp
 from models import Pessoa
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
@@ -23,6 +23,12 @@ from PIL import Image
 import io
 from dotenv import load_dotenv
 import os
+from flask_mail import Mail, Message
+from oauthlib.oauth2 import WebApplicationClient
+import random
+import bcrypt
+from datetime import datetime, timedelta
+import yagmail
 load_dotenv()
 
 app = Flask(__name__)
@@ -31,6 +37,96 @@ CORS(app, origins='*')
 CORS(pessoa_bp, origins='*')
 app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
 jwt = JWTManager(app)
+
+# ---------------------------- email ------------------- refatorar depois
+
+# # Configuração do Flask-Mail (adicione estas linhas onde você configura sua aplicação Flask)
+# app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
+# app.config['MAIL_PORT'] = 587  # Porta do servidor SMTP
+# app.config['MAIL_USE_TLS'] = True  # Use TLS para criptografia
+# app.config['MAIL_USE_SSL'] = False  # Não use SSL
+# app.config['MAIL_USERNAME'] = 'grupodiagnosticatic@gmail.com'
+# app.config['MAIL_PASSWORD'] = 'ticgia2023'
+
+# # Inicialização da extensão Flask-Mail
+# mail = Mail(app)
+
+def enviar_email_codigo_verificacao(destinatario, verification_code):
+    try:
+        sender_email = "grupodiagnosticatic@gmail.com"
+        receiver_email = destinatario
+        subject = "Codigo de verificação"
+        body = f'Seu código de verificação é: {verification_code}'
+
+        yag = yagmail.SMTP(sender_email, 'ticgia2023')
+        yag.send(receiver_email, subject, body)
+        yag.close()
+
+        return True
+    except Exception as e:
+        print(str(e))
+        return False
+    
+def generate_verification_code():
+    # Gera um código de verificação de 6 dígitos
+    return str(random.randint(100000, 999999))
+
+@app.route('/enviar-codigo-verificacao', methods=['POST'])
+def enviar_codigo_verificacao():
+    try:
+        data = request.json
+        email = data['email']
+
+        medico = Medico.query.filter_by(email=email).first()
+
+        if medico:
+            # Gerar um código de verificação
+            verification_code = generate_verification_code()
+
+            # Definir o código e o tempo de expiração no modelo
+            medico.verification_code = verification_code
+            medico.verification_code_expiration = datetime.utcnow() + timedelta(minutes=10)  # Pode ajustar o tempo de expiração conforme necessário
+
+            db.session.commit()
+
+            # Enviar e-mail com o código de verificação
+            result = enviar_email_codigo_verificacao(medico.email, verification_code)
+            if(result):
+                return jsonify({'message': 'Um código de verificação foi enviado para o seu e-mail'})
+            else:
+                return jsonify({'message': 'Erro ao enviar codigo'})
+        else:
+            return jsonify({'error': 'Médico não encontrado'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+@app.route('/redefinir-senha', methods=['POST'])
+def redefinir_senha():
+    try:
+        data = request.json
+        email = data['email']
+        verification_code = data['verification_code']
+        nova_senha = data['nova_senha']
+
+        medico = Medico.query.filter_by(email=email).first()
+
+        if medico and medico.verification_code == verification_code and medico.verification_code_expiration > datetime.utcnow():
+            # Atualizar a senha e limpar o código de verificação
+            medico.senha = bcrypt.hashpw(nova_senha.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            medico.verification_code = None
+            medico.verification_code_expiration = None
+
+            db.session.commit()
+
+            return jsonify({'message': 'Senha redefinida com sucesso'})
+        else:
+            return jsonify({'error': 'Código inválido ou expirado'}), 401
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+
+# ------------------------------------ email -----------------------
+
 
 # Carrega o modelo .h5
 model1 = tf.keras.models.load_model('./modeloXception.h5')
@@ -57,9 +153,9 @@ def cam_result(features, results) -> tuple:
   cam_output  = np.dot(class_activation_features, class_activation_weights)
   return prediction, cam_output
 
-db_user = 'hermesuser'
+db_user = 'postgres'
 db_password = '123'
-db_host = '129.148.52.111'
+db_host = 'localhost'
 db_port = '5432'
 db_name = 'hermesdb'
 

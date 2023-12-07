@@ -7,7 +7,10 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from functools import wraps
 from dotenv import load_dotenv
 import os
+from flask_mail import Mail, Message
 load_dotenv()
+
+
 
 medico_bp = Blueprint('medico', __name__)
 
@@ -79,7 +82,7 @@ def login_medico():
             return jsonify({'error': 'Email ou senha incorretos'}), 401
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-    
+ 
 # Rota para criar um novo médico
 @medico_bp.route('/medico', methods=['POST'])
 def create_medico():

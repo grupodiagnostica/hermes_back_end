@@ -96,13 +96,15 @@ class Medico(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     diagnosticos = db.relationship('Diagnostico', backref='medico', lazy=True)
     pacientes = db.relationship('Paciente', backref='medico', lazy=True)
+    verification_code = db.Column(db.String(6), nullable=True)
+    verification_code_expiration = db.Column(db.DateTime, nullable=True)
     def __init__(self, id_pessoa, crm, especialidade,senha,email, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
             self.id = id
         self.id_pessoa = id_pessoa
-        self.crm = crm
+        self.crm = crm 
         self.especialidade = especialidade
         self.senha = senha
         self.email = email
