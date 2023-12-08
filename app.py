@@ -29,6 +29,8 @@ import random
 import bcrypt
 from datetime import datetime, timedelta
 import yagmail
+from sendEmail import send
+from sendEmail import send_mail
 load_dotenv()
 
 app = Flask(__name__)
@@ -40,16 +42,19 @@ jwt = JWTManager(app)
 
 # ---------------------------- email ------------------- refatorar depois
 
-# # Configuração do Flask-Mail (adicione estas linhas onde você configura sua aplicação Flask)
-# app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
-# app.config['MAIL_PORT'] = 587  # Porta do servidor SMTP
-# app.config['MAIL_USE_TLS'] = True  # Use TLS para criptografia
-# app.config['MAIL_USE_SSL'] = False  # Não use SSL
-# app.config['MAIL_USERNAME'] = 'grupodiagnosticatic@gmail.com'
-# app.config['MAIL_PASSWORD'] = 'ticgia2023'
+# Configuração do Flask-Mail (adicione estas linhas onde você configura sua aplicação Flask)
 
-# # Inicialização da extensão Flask-Mail
-# mail = Mail(app)
+
+# mail_settings = {
+#     'MAIL_SERVER': 'smtp.gmail.net',
+#     'MAIL_PORT': 465,  # Porta do servidor SMTP
+#     'MAIL_USE_TLS': False,  # Use TLS para criptografia
+#     'MAIL_USE_SSL': True,  # Não use SSL
+#     'MAIL_USERNAME': os.getenv('EMAIL_USERNAME'),
+#     'MAIL_PASSWORD': os.getenv('EMAIL_PASSWORD')
+# }
+# Inicialização da extensão Flask-Mail
+mail = Mail(app)
 
 def enviar_email_codigo_verificacao(destinatario, verification_code):
     try:
@@ -58,8 +63,8 @@ def enviar_email_codigo_verificacao(destinatario, verification_code):
         subject = "Codigo de verificação"
         body = f'Seu código de verificação é: {verification_code}'
 
-        yag = yagmail.SMTP(sender_email, 'ticgia2023')
-        yag.send(receiver_email, subject, body)
+        yag = yagmail.SMTP(sender_email, oauth2_file='./client.json')
+        yag.send(to=receiver_email, subject=subject, contents=body)
         yag.close()
 
         return True
@@ -90,11 +95,8 @@ def enviar_codigo_verificacao():
             db.session.commit()
 
             # Enviar e-mail com o código de verificação
-            result = enviar_email_codigo_verificacao(medico.email, verification_code)
-            if(result):
-                return jsonify({'message': 'Um código de verificação foi enviado para o seu e-mail'})
-            else:
-                return jsonify({'message': 'Erro ao enviar codigo'})
+            send('email.teste.dvs@gmail.com', 'grupodiagnosticatic@gmail.com' , "Codigo de verificação", verification_code)
+            return jsonify({'message': 'Um código de verificação foi enviado para o seu e-mail'})
         else:
             return jsonify({'error': 'Médico não encontrado'}), 404
     except Exception as e:
@@ -131,7 +133,7 @@ def redefinir_senha():
 # Carrega o modelo .h5
 model1 = tf.keras.models.load_model('./modeloXception.h5')
 # model2 = tf.keras.models.load_model('./CNN_modelvgg19.h5')
-model2 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5')
+model2 = tf.keras.models.load_model('./model-24-0.9730-2023-11-19.h5')
 models = []
 models.append(model1)
 models.append(model2)
@@ -192,7 +194,15 @@ def predict(model_id):
             features, results = cam_model.predict(image)
             result, map_act = cam_result(features, results)
         # Converter ndarray para uma imagem PIL no modo 'RGB'
-            image_pil = Image.fromarray(map_act.astype('uint8')).convert('RGB')
+            if map_act.ndim == 2:
+                print('pegou aqui')
+                map_act = np.stack((map_act,) * 3, axis=-1)
+
+            # Normalização e ajuste do intervalo
+            map_act = (map_act - np.min(map_act)) / (np.max(map_act) - np.min(map_act))
+            map_act = (map_act * 255.0).astype('uint8')
+
+            image_pil = Image.fromarray(map_act)
 
             # Salvar a imagem PIL em um buffer de bytes
             img_byte_array = io.BytesIO()
