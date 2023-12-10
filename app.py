@@ -121,7 +121,7 @@ def redefinir_senha():
 # Carrega o modelo .h5
 model1 = tf.keras.models.load_model('./modeloXception.h5')
 # model2 = tf.keras.models.load_model('./CNN_modelvgg19.h5')
-model2 = tf.keras.models.load_model('./model-24-0.9730-2023-11-19.h5')
+model2 = tf.keras.models.load_model('./model-13-0.9788-27092023.h5')
 models = []
 models.append(model1)
 models.append(model2)
