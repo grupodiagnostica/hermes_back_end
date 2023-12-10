@@ -42,18 +42,6 @@ jwt = JWTManager(app)
 
 # ---------------------------- email ------------------- refatorar depois
 
-# Configuração do Flask-Mail (adicione estas linhas onde você configura sua aplicação Flask)
-
-
-# mail_settings = {
-#     'MAIL_SERVER': 'smtp.gmail.net',
-#     'MAIL_PORT': 465,  # Porta do servidor SMTP
-#     'MAIL_USE_TLS': False,  # Use TLS para criptografia
-#     'MAIL_USE_SSL': True,  # Não use SSL
-#     'MAIL_USERNAME': os.getenv('EMAIL_USERNAME'),
-#     'MAIL_PASSWORD': os.getenv('EMAIL_PASSWORD')
-# }
-# Inicialização da extensão Flask-Mail
 mail = Mail(app)
 
 def enviar_email_codigo_verificacao(destinatario, verification_code):
@@ -174,6 +162,7 @@ app.register_blueprint(diagnostico_bp)
 app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
 
+
 @app.route('/predict/<int:model_id>', methods=['POST'])
 def predict(model_id):
     try:
@@ -193,15 +182,14 @@ def predict(model_id):
             image = tf.cast(image, tf.float32) / 255.0
             features, results = cam_model.predict(image)
             result, map_act = cam_result(features, results)
-        # Converter ndarray para uma imagem PIL no modo 'RGB'
+            # Converter ndarray para uma imagem PIL no modo 'RGB'
             if map_act.ndim == 2:
-                print('pegou aqui')
                 map_act = np.stack((map_act,) * 3, axis=-1)
-
+            
             # Normalização e ajuste do intervalo
             map_act = (map_act - np.min(map_act)) / (np.max(map_act) - np.min(map_act))
             map_act = (map_act * 255.0).astype('uint8')
-
+            # map_act = np.stack([map_act, map_act, map_act], axis=-1)
             image_pil = Image.fromarray(map_act)
 
             # Salvar a imagem PIL em um buffer de bytes

@@ -21,7 +21,10 @@ def create_diagnostico():
            'data_hora' : novo_diagnostico.data_hora,
            'id_paciente' : novo_diagnostico.id_paciente,
            'resultado' : novo_diagnostico.resultado,
-           'laudo_medico' : novo_diagnostico.laudo_medico
+           'laudo_medico' : novo_diagnostico.laudo_medico,
+           'mapa_calor': novo_diagnostico.mapa_calor,
+            'resultado_modelo': novo_diagnostico.resultado_modelo,
+            'resultado_real': novo_diagnostico.resultado_real,
         }
                
         return jsonify({'data': novo_diagnostico_json}), 201
@@ -63,7 +66,10 @@ def get_diagnosticos():
             'raio_x': diagnostico.raio_x,
             'id_paciente': diagnostico.id_paciente,
             'resultado': diagnostico.resultado,
-            'laudo_medico': diagnostico.laudo_medico
+            'laudo_medico': diagnostico.laudo_medico,
+            'mapa_calor': diagnostico.mapa_calor,
+            'resultado_modelo': diagnostico.resultado_modelo,
+            'resultado_real': diagnostico.resultado_real,
         })
 
     return jsonify(diagnosticos_list)

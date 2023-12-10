@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import Paciente,db
+from models import Paciente, Medico,db
 from routes.medico import token_required
 
 paciente_bp = Blueprint('paciente', __name__)
@@ -33,6 +33,12 @@ def get_pacientes():
 
     # Consulta inicial para todos os pacientes
     query = Paciente.query
+    if id_medico:
+        medico_existente = Medico.query.filter_by(id=id_medico).first()
+        if not medico_existente:
+            return jsonify({'error': 'Médico não encontrado'}), 404
+    else:
+        return jsonify({'error': 'Não é possivel listar pacientes'}), 404
 
     # Filtre a consulta com base nos parâmetros de consulta
     if id_pessoa:
