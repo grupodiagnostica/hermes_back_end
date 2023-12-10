@@ -143,7 +143,7 @@ def cam_result(features, results) -> tuple:
   cam_output  = np.dot(class_activation_features, class_activation_weights)
   return prediction, cam_output
 
-db_user = 'postgres'
+db_user = 'hermesuser'
 db_password = '123'
 db_host = 'localhost'
 db_port = '5432'
