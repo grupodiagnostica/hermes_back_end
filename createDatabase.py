@@ -7,7 +7,7 @@ from models import Pessoa, Paciente, Funcionario, Medico, Doenca, Modelo, Diagno
 # Substitua os valores abaixo pelas suas credenciais e informações de conexão
 db_user = 'hermesuser'
 db_password = '123'
-db_host = 'localhost'
+db_host = '164.152.36.125'
 db_port = '5432'
 db_name = 'hermesdb'
 

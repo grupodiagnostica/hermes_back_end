@@ -145,7 +145,7 @@ def cam_result(features, results) -> tuple:
 
 db_user = 'hermesuser'
 db_password = '123'
-db_host = 'localhost'
+db_host = '164.152.36.125'
 db_port = '5432'
 db_name = 'hermesdb'
 
