@@ -120,28 +120,29 @@ class Doenca(db.Model):
             self.id = id
         self.nome = nome
 
-class Modelo(db.Model):
-    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
-    nome = db.Column(db.String(100), nullable=False)
-    versao = db.Column(db.String(10))
-    acuracia = db.Column(db.Float)
-    sensibilidade = db.Column(db.Float)
-    precisao = db.Column(db.Float)
-    f1_score = db.Column(db.Float)
-    id_doenca = db.Column(db.String(36), db.ForeignKey('doenca.id'), nullable=False)
+# -------------- modelo não utilizado por equanto ---------------
+# class Modelo(db.Model):
+#     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+#     nome = db.Column(db.String(100), nullable=False)
+#     versao = db.Column(db.String(10))
+#     acuracia = db.Column(db.Float)
+#     sensibilidade = db.Column(db.Float)
+#     precisao = db.Column(db.Float)
+#     f1_score = db.Column(db.Float)
+#     id_doenca = db.Column(db.String(36), db.ForeignKey('doenca.id'), nullable=False)
 
-    def __init__(self, nome, versao, acuracia, sensibilidade, precisao, f1_score, id_doenca, id=None):
-        if id is None:
-            self.id = str(uuid.uuid4())
-        else:
-            self.id = id
-        self.nome = nome
-        self.versao = versao
-        self.acuracia = acuracia
-        self.sensibilidade = sensibilidade
-        self.precisao = precisao
-        self.f1_score = f1_score
-        self.id_doenca = id_doenca
+#     def __init__(self, nome, versao, acuracia, sensibilidade, precisao, f1_score, id_doenca, id=None):
+#         if id is None:
+#             self.id = str(uuid.uuid4())
+#         else:
+#             self.id = id
+#         self.nome = nome
+#         self.versao = versao
+#         self.acuracia = acuracia
+#         self.sensibilidade = sensibilidade
+#         self.precisao = precisao
+#         self.f1_score = f1_score
+#         self.id_doenca = id_doenca
 
 class Diagnostico(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -149,9 +150,8 @@ class Diagnostico(db.Model):
     modelo = db.Column(db.String(255))
     id_medico = db.Column(db.String(36), db.ForeignKey('medico.id'), nullable=False)
     data_hora = db.Column(db.DateTime, nullable=False)
-    # raio_x = db.Column(db.String(100))
+    raio_x = db.Column(db.Text)
     id_paciente = db.Column(db.String(36), db.ForeignKey('paciente.id'), nullable=False)
-    resultado = db.Column(db.String(100))
     laudo_medico = db.Column(db.Text)
     mapa_calor = db.Column(db.Text)
     resultado_modelo = db.Column(db.String(255))

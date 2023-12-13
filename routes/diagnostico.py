@@ -60,7 +60,7 @@ def get_diagnosticos():
     for diagnostico in diagnosticos:
         diagnosticos_list.append({
             'id': diagnostico.id,
-            'id_modelo': diagnostico.id_modelo,
+            'modelo': diagnostico.modelo,
             'id_medico': diagnostico.id_medico,
             'data_hora': str(diagnostico.data_hora),
             'raio_x': diagnostico.raio_x,
