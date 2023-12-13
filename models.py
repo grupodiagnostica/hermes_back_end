@@ -109,16 +109,17 @@ class Medico(db.Model):
         self.senha = senha
         self.email = email
 
-class Doenca(db.Model):
-    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
-    nome = db.Column(db.String(100), nullable=False)
-    modelos = db.relationship('Modelo', backref='doenca', lazy=True)
-    def __init__(self, nome, id=None):
-        if id is None:
-            self.id = str(uuid.uuid4())
-        else:
-            self.id = id
-        self.nome = nome
+# -------------- doença não utilizada por equanto ---------------
+# class Doenca(db.Model):
+#     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+#     nome = db.Column(db.String(100), nullable=False)
+#     # modelos = db.relationship('Modelo', backref='doenca', lazy=True)
+#     def __init__(self, nome, id=None):
+#         if id is None:
+#             self.id = str(uuid.uuid4())
+#         else:
+#             self.id = id
+#         self.nome = nome
 
 # -------------- modelo não utilizado por equanto ---------------
 # class Modelo(db.Model):
