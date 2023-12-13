@@ -10,10 +10,10 @@ from routes.medico import medico_bp
 from routes.pessoa import pessoa_bp
 from routes.paciente import paciente_bp
 from routes.clinica import clinica_bp
-from routes.doenca import doenca_bp
 from routes.diagnostico import diagnostico_bp
 from routes.funcionario import funcionario_bp
 # from routes.modelo import modelo_bp
+# from routes.doenca import doenca_bp
 from models import Pessoa
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
@@ -162,10 +162,10 @@ db.init_app(app)
 app.register_blueprint(pessoa_bp)
 app.register_blueprint(paciente_bp)
 app.register_blueprint(funcionario_bp)
-app.register_blueprint(doenca_bp)
 app.register_blueprint(diagnostico_bp)
 app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
+# app.register_blueprint(doenca_bp)
 # app.register_blueprint(modelo_bp)
 
 
