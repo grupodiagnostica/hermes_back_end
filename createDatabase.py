@@ -2,7 +2,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import uuid
 from models import db
-from models import Pessoa, Paciente, Funcionario, Medico, Doenca, Modelo, Diagnostico
 
 # Substitua os valores abaixo pelas suas credenciais e informações de conexão
 db_user = 'hermesuser'
