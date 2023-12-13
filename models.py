@@ -158,16 +158,16 @@ class Diagnostico(db.Model):
     resultado_modelo = db.Column(db.String(255))
     resultado_real = db.Column(db.String(255))
 
-    def __init__(self, modelo, id_medico, data_hora, id_paciente, resultado, laudo_medico, mapa_calor ,resultado_modelo, resultado_real ,id=None):
+    def __init__(self, modelo,raio_x, id_medico, data_hora, id_paciente, laudo_medico, mapa_calor ,resultado_modelo, resultado_real ,id=None):
             if id is None:
                 self.id = str(uuid.uuid4())
             else:
                 self.id = id
             self.modelo = modelo
+            self.raio_x = raio_x
             self.id_medico = id_medico
             self.data_hora = data_hora
             self.id_paciente = id_paciente
-            self.resultado = resultado
             self.laudo_medico = laudo_medico
             self.mapa_calor = mapa_calor
             self.resultado_modelo = resultado_modelo
