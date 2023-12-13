@@ -133,9 +133,16 @@ gap_weights = model2.layers[-1].get_weights()[0]
 cam_model  = tf.keras.models.Model(inputs=[model2.input], outputs=[model2.layers[-8].output, model2.output])
 
 def cam_result(features, results) -> tuple:
+  classes = ['PNEUMONIA', 'COVID19', 'TUBERCULOSE', 'NORMAL']
+  def softmax(x: list):
+    """Calcula os valores softmax para cada conjunto de pontuações em x."""
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum()
+
   # there is only one image in the batch so we index at `0`
   features_for_img = features[0]
-  prediction = results[0]
+  print(softmax(results[0]))
+  prediction = [classes[np.argmax(results[0])], str(np.max(softmax(results[0])))]
   # there is only one unit in the output so we get the weights connected to it
   class_activation_weights = gap_weights[:,0]
   # upsample to the image size
@@ -199,7 +206,8 @@ def predict(model_id):
 
             # Converter o buffer de bytes para base64
             imagem_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
-            data = {'predictions': result.tolist(), 'image':imagem_base64}            
+            data = {'predictions': result, 'image':imagem_base64}    
+            print(data['predictions'])        
         else:
             model = models[model_id - 1]
             image = tf.cast(image, tf.float32) / 255.0
