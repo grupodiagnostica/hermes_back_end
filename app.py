@@ -19,6 +19,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
 import scipy as sp
 from scipy import ndimage
+import cv2
+import matplotlib.pyplot as plt
 from PIL import Image
 import io
 from dotenv import load_dotenv
@@ -119,7 +121,7 @@ def redefinir_senha():
 
 
 # Carrega o modelo .h5
-model1 = tf.keras.models.load_model('./modeloXception.h5')
+model1 = tf.keras.models.load_model('./model-24-0.9730-2023-11-19.h5')
 # model2 = tf.keras.models.load_model('./CNN_modelvgg19.h5')
 model2 = tf.keras.models.load_model('./model-24-0.9730-2023-11-19.h5')
 models = []
@@ -133,11 +135,11 @@ cam_model  = tf.keras.models.Model(inputs=[model2.input], outputs=[model2.layers
 def cam_result(features, results) -> tuple:
   # there is only one image in the batch so we index at `0`
   features_for_img = features[0]
-  prediction = results[0][0]
+  prediction = results[0]
   # there is only one unit in the output so we get the weights connected to it
   class_activation_weights = gap_weights[:,0]
   # upsample to the image size
-  class_activation_features = sp.ndimage.zoom(features_for_img, (224/7, 224/7, 1), order=2)
+  class_activation_features = sp.ndimage.zoom(features_for_img, (224/14, 224/14, 1), order=2)
   #spline interpolation of order = 2 (G search)
   # compute the intensity of each feature in the CAM
   cam_output  = np.dot(class_activation_features, class_activation_weights)
@@ -168,29 +170,28 @@ def predict(model_id):
     try:
         print(model_id)
 
-        image = request.files['image'].read()
+        image_orig = request.files['image'].read()
+        image_orig = cv2.imdecode(np.frombuffer(image_orig, np.int8), cv2.IMREAD_COLOR)
+        
+        image = cv2.equalizeHist(cv2.resize(cv2.cvtColor(image_orig, cv2.COLOR_RGB2GRAY), (224, 224)))
+        image = np.array(image) / 255
+        image = image.reshape(-1, 224, 224, 1) 
 
-
-        image = tf.image.decode_image(image, channels=3)
-        image = tf.image.resize(image, (224, 224))
-        image = tf.expand_dims(image, axis=0) 
-
-     
+        image_orig = cv2.resize(image_orig, (224, 224))
         
         if model_id == 2:
-            image = tf.image.rgb_to_grayscale(image)
-            image = tf.cast(image, tf.float32) / 255.0
             features, results = cam_model.predict(image)
             result, map_act = cam_result(features, results)
-            # Converter ndarray para uma imagem PIL no modo 'RGB'
-            if map_act.ndim == 2:
-                map_act = np.stack((map_act,) * 3, axis=-1)
-            
-            # Normalização e ajuste do intervalo
-            map_act = (map_act - np.min(map_act)) / (np.max(map_act) - np.min(map_act))
-            map_act = (map_act * 255.0).astype('uint8')
+
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+            ax1.imshow(image_orig)
+            ax2.imshow(map_act, cmap='jet', alpha=.5)
+            ax2.imshow(image_orig, alpha=.5)
+            fig.canvas.draw()
+            map_act = np.array(fig.canvas.renderer.buffer_rgba())
+
             # map_act = np.stack([map_act, map_act, map_act], axis=-1)
-            image_pil = Image.fromarray(map_act)
+            image_pil = Image.fromarray(map_act).convert('RGB')
 
             # Salvar a imagem PIL em um buffer de bytes
             img_byte_array = io.BytesIO()
@@ -198,9 +199,7 @@ def predict(model_id):
 
             # Converter o buffer de bytes para base64
             imagem_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
-            data = {'predictions': result.tolist(), 'image':imagem_base64}
-            print(data.get('predictions'))
-            
+            data = {'predictions': result.tolist(), 'image':imagem_base64}            
         else:
             model = models[model_id - 1]
             image = tf.cast(image, tf.float32) / 255.0
