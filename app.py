@@ -119,18 +119,15 @@ def redefinir_senha():
 
 
 # Carrega o modelo .h5
-model1 = tf.keras.models.load_model('./modeloXception.h5')
-# model2 = tf.keras.models.load_model('./CNN_modelvgg19.h5')
-model2 = tf.keras.models.load_model('./model-24-0.9730-2023-11-19.h5')
+model1 = './modeloXception.h5'
+model2 = './model-24-0.9730-2023-11-19.h5'
 models = []
 models.append(model1)
 models.append(model2)
 
 
-gap_weights = model2.layers[-1].get_weights()[0]
-cam_model  = tf.keras.models.Model(inputs=[model2.input], outputs=[model2.layers[-8].output, model2.output])
 
-def cam_result(features, results) -> tuple:
+def cam_result(features, results, gap_weights) -> tuple:
   # there is only one image in the batch so we index at `0`
   features_for_img = features[0]
   prediction = results[0][0]
@@ -167,6 +164,9 @@ app.register_blueprint(medico_bp)
 def predict(model_id):
     try:
         print(model_id)
+        model_path = models[model_id - 1]
+
+        model = tf.keras.models.load_model(model_path)
 
         image = request.files['image'].read()
 
@@ -178,10 +178,12 @@ def predict(model_id):
      
         
         if model_id == 2:
+            gap_weights = model.layers[-1].get_weights()[0]
+            cam_model  = tf.keras.models.Model(inputs=[model.input], outputs=[model.layers[-8].output, model.output])
             image = tf.image.rgb_to_grayscale(image)
             image = tf.cast(image, tf.float32) / 255.0
             features, results = cam_model.predict(image)
-            result, map_act = cam_result(features, results)
+            result, map_act = cam_result(features, results, gap_weights)
             # Converter ndarray para uma imagem PIL no modo 'RGB'
             if map_act.ndim == 2:
                 map_act = np.stack((map_act,) * 3, axis=-1)
@@ -202,7 +204,6 @@ def predict(model_id):
             print(data.get('predictions'))
             
         else:
-            model = models[model_id - 1]
             image = tf.cast(image, tf.float32) / 255.0
             predictions = model.predict(image)
             predictions = predictions.tolist()
@@ -216,6 +217,8 @@ def predict(model_id):
             response.headers['Content-Disposition'] = 'attachment; filename=image.bin'
             response.headers['Content-Type'] = 'image/octet-stream'
         response.headers['Access-Control-Allow-Origin'] = '*'
+
+        del model
         return response
     except Exception as e:
         response = jsonify({'error': str(e)})
