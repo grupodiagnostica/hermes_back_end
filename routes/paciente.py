@@ -34,7 +34,7 @@ def get_pacientes():
     # Consulta inicial para todos os pacientes
     query = Paciente.query
     if id_medico:
-        medico_existente = Medico.query.filter_by(id=id_medico).first()
+        medico_existente = Medico.query.filter(Medico.id == id_medico)
         if not medico_existente:
             return jsonify({'error': 'Médico não encontrado'}), 404
     else:
