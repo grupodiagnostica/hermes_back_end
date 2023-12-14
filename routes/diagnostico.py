@@ -25,6 +25,26 @@ def create_diagnostico():
            'mapa_calor': novo_diagnostico.mapa_calor,
             'resultado_modelo': novo_diagnostico.resultado_modelo,
             'resultado_real': novo_diagnostico.resultado_real,
+            'paciente': {
+            'id': novo_diagnostico.paciente.id,
+            'id_pessoa': novo_diagnostico.paciente.id_pessoa,
+            'sexo': novo_diagnostico.paciente.sexo,
+            'tipo_sanguineo': novo_diagnostico.paciente.tipo_sanguineo,
+            'cidade': novo_diagnostico.paciente.cidade,
+            'estado': novo_diagnostico.paciente.estado,
+            'numero': novo_diagnostico.paciente.numero,
+            'logradouro': novo_diagnostico.paciente.logradouro,
+            'bairro': novo_diagnostico.paciente.bairro,
+            'detalhes_clinicos': novo_diagnostico.paciente.detalhes_clinicos,
+            'pessoa': {
+                'id': novo_diagnostico.paciente.pessoa.id,
+                'cpf': novo_diagnostico.paciente.pessoa.cpf,
+                'data_nascimento': str(novo_diagnostico.paciente.pessoa.data_nascimento),
+                'nome': novo_diagnostico.paciente.pessoa.nome,
+                'telefone': novo_diagnostico.paciente.pessoa.telefone,
+                'cargo': novo_diagnostico.paciente.pessoa.cargo
+            }
+            }
         }
                
         return jsonify({'data': novo_diagnostico_json}), 201
@@ -69,6 +89,26 @@ def get_diagnosticos():
             'mapa_calor': diagnostico.mapa_calor,
             'resultado_modelo': diagnostico.resultado_modelo,
             'resultado_real': diagnostico.resultado_real,
+            'paciente': {
+            'id': diagnostico.paciente.id,
+            'id_pessoa': diagnostico.paciente.id_pessoa,
+            'sexo': diagnostico.paciente.sexo,
+            'tipo_sanguineo': diagnostico.paciente.tipo_sanguineo,
+            'cidade': diagnostico.paciente.cidade,
+            'estado': diagnostico.paciente.estado,
+            'numero': diagnostico.paciente.numero,
+            'logradouro': diagnostico.paciente.logradouro,
+            'bairro': diagnostico.paciente.bairro,
+            'detalhes_clinicos': diagnostico.paciente.detalhes_clinicos,
+            'pessoa': {
+                'id': diagnostico.paciente.pessoa.id,
+                'cpf': diagnostico.paciente.pessoa.cpf,
+                'data_nascimento': str(diagnostico.paciente.pessoa.data_nascimento),
+                'nome': diagnostico.paciente.pessoa.nome,
+                'telefone': diagnostico.paciente.pessoa.telefone,
+                'cargo': diagnostico.paciente.pessoa.cargo
+            }
+            }
         })
 
     return jsonify(diagnosticos_list)
