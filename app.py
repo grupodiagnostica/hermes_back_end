@@ -192,7 +192,7 @@ def predict(model_id):
             features, results = cam_model.predict(image)
             result, map_act = cam_result(features, results,gap_weights)
 
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(5, 10))
             ax1.imshow(image_orig)
             ax2.imshow(map_act, cmap='jet', alpha=.5)
             ax2.imshow(image_orig, alpha=.5)
