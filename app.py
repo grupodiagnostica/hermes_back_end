@@ -187,15 +187,28 @@ def predict(model_id):
         image_orig = cv2.resize(image_orig, (224, 224))
         
         if model_id == 2:
+
             gap_weights = model.layers[-1].get_weights()[0]
             cam_model  = tf.keras.models.Model(inputs=[model.input], outputs=[model.layers[-8].output, model.output])
             features, results = cam_model.predict(image)
             result, map_act = cam_result(features, results,gap_weights)
 
+            map_act = cv2.normalize(map_act, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(5, 10))
+            ax1.set_title('Imagem original')
             ax1.imshow(image_orig)
-            ax2.imshow(map_act, cmap='jet', alpha=.5)
-            ax2.imshow(image_orig, alpha=.5)
+            ax1.set_xticks([])
+            ax1.set_yticks([])
+
+            ax2.set_title('Imagem de calor')
+            color = ax2.imshow(map_act, cmap='jet')
+            ax2.imshow(image_orig, alpha=.6)
+            ax2.set_xticks([])
+            ax2.set_yticks([])
+
+            fig.colorbar(color, ax=ax2, shrink=.7, location='left', label='Ativação do modelo')
+            plt.tight_layout()
             fig.canvas.draw()
             map_act = np.array(fig.canvas.renderer.buffer_rgba())
 
