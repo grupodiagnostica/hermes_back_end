@@ -57,8 +57,7 @@ def login_medico():
 
         if medico and bcrypt.checkpw(senha.encode('utf-8'), medico.senha.encode('utf-8')):
             # Gerar um token de autenticação
-            access_token = create_access_token(identity=medico.email)
-            
+            access_token = generate_access_token(medico.email)
             medicoJson = {
             'id': medico.id,
             'id_pessoa': medico.id_pessoa,
@@ -80,6 +79,7 @@ def login_medico():
         else:
             return jsonify({'error': 'Email ou senha incorretos'}), 401
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
  
 # Rota para criar um novo médico
