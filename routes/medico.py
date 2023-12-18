@@ -65,6 +65,7 @@ def login_medico():
             'especialidade': medico.especialidade,
             'senha': medico.senha,
             'email' : medico.email,
+            'foto_perfil': medico.foto_perfil,
             'pessoa': {
                 'id': medico.pessoa.id,
                 'cpf': medico.pessoa.cpf,
@@ -101,6 +102,7 @@ def create_medico():
             'especialidade': novo_medico.especialidade,
             'senha': novo_medico.senha,
             'email' : novo_medico.email,
+            'foto_perfil': novo_medico.foto_perfil,
             'pessoa': {
                 'id': novo_medico.pessoa.id,
                 'cpf': novo_medico.pessoa.cpf,
@@ -146,6 +148,7 @@ def get_medicos():
             'especialidade': medico.especialidade,
             'senha': medico.senha,
             'email' : medico.email,
+            'foto_perfil': medico.foto_perfil,
             'pessoa': {
                 'id': medico.pessoa.id,
                 'cpf': medico.pessoa.cpf,
