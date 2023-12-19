@@ -215,8 +215,27 @@ def update_medico(medico_id):
         for key, value in data.items():
             setattr(medico, key, value)
         db.session.commit()
-        return jsonify({'message': 'Dados do médico atualizados com sucesso'})
+
+        medicoJson = {
+        'id': medico.id,
+        'id_pessoa': medico.id_pessoa,
+        'crm': medico.crm,
+        'especialidade': medico.especialidade,
+        'senha': medico.senha,
+        'email' : medico.email,
+        'foto_perfil': medico.foto_perfil,
+        'pessoa': {
+            'id': medico.pessoa.id,
+            'cpf': medico.pessoa.cpf,
+            'data_nascimento': str(medico.pessoa.data_nascimento),
+            'nome': medico.pessoa.nome,
+            'telefone': medico.pessoa.telefone,
+            'cargo': medico.pessoa.cargo
+        }
+        }
+        return jsonify({'data': medicoJson})
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir um médico

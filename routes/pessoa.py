@@ -95,6 +95,7 @@ def update_pessoa(pessoa_id):
         db.session.commit()
         return jsonify({'data': pessoaJson})
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir uma pessoa
