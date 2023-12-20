@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from models import db, Medico
 import bcrypt
 from datetime import datetime, timedelta
+from routes.login import token_required
 import jwt 
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from functools import wraps
@@ -14,75 +15,7 @@ load_dotenv()
 
 medico_bp = Blueprint('medico', __name__)
 
-# Função para gerar um token de acesso
-def generate_access_token(email):
-    payload = {
-        'exp': (datetime.utcnow() + timedelta(days=3)).timestamp(),  # Expiração em 1 dia
-        'sub': email
-    } 
-    access_token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
-    return access_token
 
-# Função para verificar se o token é válido
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        if not token:
-            print('Token ausente')
-            return jsonify({'error': 'Token ausente'}), 401
-        try:
-            data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            print('Token expirado')
-            return jsonify({'error': 'Token expirado'}), 401
-        except jwt.InvalidTokenError:
-            print('Token inválido')
-            return jsonify({'error': 'Token inválido'}), 401
-
-        return f(*args, **kwargs)
-
-    return decorated
-
-# Rota para fazer login
-@medico_bp.route('/medico/login', methods=['POST'])
-def login_medico():
-    try:
-        data = request.json
-        email = data['email']
-        senha = data['senha']
-
-        # Consulta o médico pelo email
-        medico = Medico.query.filter_by(email=email).first()
-
-        if medico and bcrypt.checkpw(senha.encode('utf-8'), medico.senha.encode('utf-8')):
-            # Gerar um token de autenticação
-            access_token = generate_access_token(medico.email)
-            medicoJson = {
-            'id': medico.id,
-            'id_pessoa': medico.id_pessoa,
-            'crm': medico.crm,
-            'especialidade': medico.especialidade,
-            'senha': medico.senha,
-            'email' : medico.email,
-            'foto_perfil': medico.foto_perfil,
-            'pessoa': {
-                'id': medico.pessoa.id,
-                'cpf': medico.pessoa.cpf,
-                'data_nascimento': str(medico.pessoa.data_nascimento),
-                'nome': medico.pessoa.nome,
-                'telefone': medico.pessoa.telefone,
-                'cargo': medico.pessoa.cargo
-            }
-        }
-            return jsonify({'token': access_token,
-                            'data': medicoJson})  
-        else:
-            return jsonify({'error': 'Email ou senha incorretos'}), 401
-    except Exception as e:
-        print(e)
-        return jsonify({'error': str(e)}), 400
- 
 # Rota para criar um novo médico
 @medico_bp.route('/medico', methods=['POST'])
 def create_medico():
@@ -93,7 +26,6 @@ def create_medico():
         data['senha'] = senha_criptografada.decode('utf-8')
         novo_medico =  Medico(**data)
         db.session.add(novo_medico)
-        print(data)
         db.session.commit()
         medicoJson = {
             'id': novo_medico.id,

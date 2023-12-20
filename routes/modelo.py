@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models import db, Modelo
-from routes.medico import token_required
+from routes.login import token_required
 modelo_bp = Blueprint('modelo', __name__)
 
 # Rota para criar um novo modelo

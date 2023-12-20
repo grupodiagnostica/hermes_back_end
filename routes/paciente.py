@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models import Paciente, Medico,db
-from routes.medico import token_required
+from routes.login import token_required
 
 paciente_bp = Blueprint('paciente', __name__)
 

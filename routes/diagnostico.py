@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import db, Diagnostico
 from datetime import datetime
-from routes.medico import token_required
+from routes.login import token_required
 
 diagnostico_bp = Blueprint('diagnostico', __name__)
 

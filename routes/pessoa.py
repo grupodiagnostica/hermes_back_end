@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import Pessoa,db
 from flask_cors import CORS
-from routes.medico import token_required
+from routes.login import token_required
 pessoa_bp = Blueprint('pessoa', __name__)
 
 @pessoa_bp.route('/pessoa', methods=['POST'])

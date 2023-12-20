@@ -1,19 +1,20 @@
 from flask import Blueprint, request, jsonify
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import uuid
-from models import Clinica
+import bcrypt
+from models import Clinica, Medico
 from models import db
-from routes.medico import token_required
+from routes.login import token_required
 
 clinica_bp = Blueprint('clinica', __name__)
 
 # Rota para criar uma nova clínica
 @clinica_bp.route('/clinica', methods=['POST'])
-@token_required
 def create_clinica():
     try:
         data = request.json
+        senha_criptografada = bcrypt.hashpw(data['senha'].encode('utf-8'), bcrypt.gensalt())
+        data['senha'] = senha_criptografada.decode('utf-8')
         nova_clinica = Clinica(**data)
         db.session.add(nova_clinica)
         db.session.commit()
@@ -81,3 +82,31 @@ def delete_clinica(clinica_id):
         return jsonify({'message': 'Clínica excluída com sucesso'})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+@clinica_bp.route('/clinica/<string:clinica_id>/adicionar_medico', methods=['POST'])
+def adicionar_medico_a_clinica(clinica_id):
+    # Verifica se a clínica existe
+    clinica = Clinica.query.get(clinica_id)
+    if not clinica:
+        return jsonify({'mensagem': 'Clínica não encontrada'}), 404
+
+    # Obtém dados do médico a partir do corpo da requisição
+    dados_medico = request.get_json()
+
+    # Cria um novo objeto Medico
+    novo_medico = Medico(
+        id_pessoa=dados_medico['id_pessoa'],
+        crm=dados_medico['crm'],
+        especialidade=dados_medico['especialidade'],
+        senha=dados_medico['senha'],
+        email=dados_medico['email'],
+        foto_perfil=dados_medico.get('foto_perfil')  # Pode ser None
+    )
+
+    # Adiciona o médico à clínica
+    clinica.medicos.append(novo_medico)
+
+    # Commit no banco de dados
+    db.session.commit()
+
+    return jsonify({'mensagem': 'Médico adicionado à clínica com sucesso'})

@@ -66,9 +66,10 @@ class Clinica(db.Model):
     cnpj = db.Column(db.String(18), unique=True, nullable=False)
     nome = db.Column(db.String(100), nullable=False)
     foto_perfil = db.Column(db.Text, nullable=True)
+    senha = db.Column(db.String(100), nullable=False)
     medicos = db.relationship('Medico', secondary=medico_clinica_association, backref='clinica')
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
-    def __init__(self, cnpj, nome, id=None, foto_perfil=None):
+    def __init__(self, cnpj, nome, senha,id=None, foto_perfil=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
@@ -79,6 +80,7 @@ class Clinica(db.Model):
             self.foto_perfil = foto_perfil
         self.cnpj = cnpj
         self.nome = nome
+        self.senha = senha
 
 
 class Medico(db.Model):

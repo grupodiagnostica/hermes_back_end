@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import Funcionario
 from models import db
-from routes.medico import token_required
+from routes.login import token_required
 funcionario_bp = Blueprint('funcionario', __name__)
 
 # Rota para criar um novo funcionário
