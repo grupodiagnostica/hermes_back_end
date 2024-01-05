@@ -83,30 +83,53 @@ def delete_clinica(clinica_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
-@clinica_bp.route('/clinica/<string:clinica_id>/adicionar_medico', methods=['POST'])
-def adicionar_medico_a_clinica(clinica_id):
-    # Verifica se a clínica existe
+@clinica_bp.route('/clinica/<string:clinica_id>/medico', methods=['POST'])
+def create_medico_clinica(clinica_id):
+    try:
+        clinica = Clinica.query.get(clinica_id)
+        if not clinica:
+            return jsonify({'message': 'Clínica não encontrada'}), 404
+
+        data = request.json
+        # Criptografa a senha
+        senha_criptografada = bcrypt.hashpw(data['senha'].encode('utf-8'), bcrypt.gensalt())
+        data['senha'] = senha_criptografada.decode('utf-8')
+        novo_medico =  Medico(**data)
+        novo_medico.clinicas.append(clinica)
+        # clinica.medicos.append(novo_medico)
+        db.session.add(novo_medico)
+        db.session.commit()
+
+        return jsonify({'message': 'Médico adicionado à clínica com sucesso'})  
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Erro ao criar o médico'})  
+    
+
+@clinica_bp.route('/clinica/<string:clinica_id>', methods=['GET'])
+def get_medicos_clinica(clinica_id):
     clinica = Clinica.query.get(clinica_id)
-    if not clinica:
-        return jsonify({'mensagem': 'Clínica não encontrada'}), 404
 
-    # Obtém dados do médico a partir do corpo da requisição
-    dados_medico = request.get_json()
+    if clinica:
+        medicos = clinica.medicos
+        medicosJson = [{
+            'id': medico.id,
+            'id_pessoa': medico.id_pessoa,
+            'crm': medico.crm,
+            'especialidade': medico.especialidade,
+            'senha': medico.senha,
+            'email' : medico.email,
+            'foto_perfil': medico.foto_perfil,
+            'pessoa': {
+                'id': medico.pessoa.id,
+                'cpf': medico.pessoa.cpf,
+                'data_nascimento': str(medico.pessoa.data_nascimento),
+                'nome': medico.pessoa.nome,
+                'telefone': medico.pessoa.telefone,
+                'cargo': medico.pessoa.cargo
+            }
+        } for medico in medicos]
+        return jsonify({"data":medicosJson})
+    else:
+        return jsonify({"mensagem": "Clínica não encontrada"}), 404
 
-    # Cria um novo objeto Medico
-    novo_medico = Medico(
-        id_pessoa=dados_medico['id_pessoa'],
-        crm=dados_medico['crm'],
-        especialidade=dados_medico['especialidade'],
-        senha=dados_medico['senha'],
-        email=dados_medico['email'],
-        foto_perfil=dados_medico.get('foto_perfil')  # Pode ser None
-    )
-
-    # Adiciona o médico à clínica
-    clinica.medicos.append(novo_medico)
-
-    # Commit no banco de dados
-    db.session.commit()
-
-    return jsonify({'mensagem': 'Médico adicionado à clínica com sucesso'})

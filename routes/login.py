@@ -89,6 +89,12 @@ def login_medico():
                 'cnpj': clinica.cnpj,
                 'nome': clinica.nome,
                 'foto_perfil': clinica.foto_perfil,
+                'cidade': clinica.cidade,
+                'estado': clinica.estado,
+                'numero': clinica.numero,
+                'logradouro': clinica.logradouro,
+                'bairro': clinica.bairro,
+                'email': clinica.email,
                 }
                 return jsonify({'token': access_token,
                                 'data': clinicaJson})  
