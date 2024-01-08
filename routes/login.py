@@ -92,6 +92,7 @@ def login_medico():
                 'cidade': clinica.cidade,
                 'estado': clinica.estado,
                 'numero': clinica.numero,
+                'cep': clinica.cep,
                 'logradouro': clinica.logradouro,
                 'bairro': clinica.bairro,
                 'email': clinica.email,

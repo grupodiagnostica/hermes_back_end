@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import Paciente, Medico,db
+from models import Paciente, Clinica,db
 from routes.login import token_required
 
 paciente_bp = Blueprint('paciente', __name__)
@@ -23,7 +23,7 @@ def create_paciente():
 def get_pacientes():
     # Obtenha os parâmetros de consulta da URL
     id_pessoa = request.args.get('id_pessoa')
-    id_medico = request.args.get('id_medico')
+    id_clinica = request.args.get('id_clinica')
     sexo = request.args.get('sexo')
     tipo_sanguineo = request.args.get('tipo_sanguineo')
     cidade = request.args.get('cidade')
@@ -33,8 +33,8 @@ def get_pacientes():
 
     # Consulta inicial para todos os pacientes
     query = Paciente.query
-    if id_medico:
-        medico_existente = Medico.query.filter(Medico.id == id_medico)
+    if id_clinica:
+        medico_existente = Clinica.query.filter(Clinica.id == id_clinica)
         if not medico_existente:
             return jsonify({'error': 'Médico não encontrado'}), 404
     else:
@@ -43,8 +43,8 @@ def get_pacientes():
     # Filtre a consulta com base nos parâmetros de consulta
     if id_pessoa:
         query = query.filter(Paciente.id_pessoa == id_pessoa)
-    if id_medico:
-        query = query.filter(Paciente.id_medico == id_medico)
+    if id_clinica:
+        query = query.filter(Paciente.id_medico == id_clinica)
     if sexo:
         query = query.filter(Paciente.sexo == sexo)
     if tipo_sanguineo:
@@ -69,6 +69,7 @@ def get_pacientes():
             'cidade': paciente.cidade,
             'estado': paciente.estado,
             'numero': paciente.numero,
+            'cep': paciente.cep,
             'logradouro': paciente.logradouro,
             'bairro': paciente.bairro,
             'detalhes_clinicos': paciente.detalhes_clinicos,
@@ -104,6 +105,7 @@ def update_paciente(paciente_id):
             'cidade': paciente.cidade,
             'estado': paciente.estado,
             'numero': paciente.numero,
+            'cep': paciente.cep,
             'logradouro': paciente.logradouro,
             'bairro': paciente.bairro,
             'detalhes_clinicos': paciente.detalhes_clinicos,

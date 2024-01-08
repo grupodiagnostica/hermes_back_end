@@ -65,7 +65,20 @@ def update_clinica(clinica_id):
         for key, value in data.items():
             setattr(clinica, key, value)
         db.session.commit()
-        return jsonify({'message': 'Dados da clínica atualizados com sucesso'})
+        clinicaJson = {
+                'id': clinica.id,
+                'cnpj': clinica.cnpj,
+                'nome': clinica.nome,
+                'foto_perfil': clinica.foto_perfil,
+                'cidade': clinica.cidade,
+                'estado': clinica.estado,
+                'numero': clinica.numero,
+                'cep': clinica.cep,
+                'logradouro': clinica.logradouro,
+                'bairro': clinica.bairro,
+                'email': clinica.email,
+                }
+        return jsonify({'data': clinicaJson})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
@@ -106,7 +119,7 @@ def create_medico_clinica(clinica_id):
         return jsonify({'message': 'Erro ao criar o médico'})  
     
 
-@clinica_bp.route('/clinica/<string:clinica_id>', methods=['GET'])
+@clinica_bp.route('/clinica/<string:clinica_id>/medico', methods=['GET'])
 def get_medicos_clinica(clinica_id):
     clinica = Clinica.query.get(clinica_id)
 

@@ -68,12 +68,10 @@ def get_medicos():
         query = query.filter(Medico.especialidade == especialidade)
 
     # Execute a consulta
-    medicos = query.first()
+    medicos = query.all()
 
     # Converta os resultados em um formato JSON
-    medicos_list = []
-    for medico in medicos:
-        medicos_list.append({
+    medicos_list = [{
             'id': medico.id,
             'id_pessoa': medico.id_pessoa,
             'crm': medico.crm,
@@ -88,10 +86,29 @@ def get_medicos():
                 'nome': medico.pessoa.nome,
                 'telefone': medico.pessoa.telefone,
                 'cargo': medico.pessoa.cargo
-            }
-        })
+            }}for medico in medicos ]
 
     return jsonify(medicos_list)
+
+@medico_bp.route('/medico/<string:medico_id>/clinica', methods=['GET'])
+def get_clinicas_medico(medico_id):
+    medico = Medico.query.get(medico_id)
+
+    if medico:
+        clinicas = medico.clinicas
+        clinicasJson = [{
+            'id': clinica.id,
+            'cep': clinica.cep,
+            'cnpj': clinica.cnpj,
+            'email' : clinica.email,
+            'foto_perfil': clinica.foto_perfil,
+            
+        } for clinica in clinicas]
+        return jsonify({"data":clinicasJson})
+    else:
+        return jsonify({"mensagem": "Clínica não encontrada"}), 404
+
+
 
 
 # @medico_bp.route('/medico/login', methods=['POST'])

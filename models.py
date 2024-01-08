@@ -29,10 +29,11 @@ class Pessoa(db.Model):
 class Paciente(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     id_pessoa = db.Column(db.String(36), db.ForeignKey('pessoa.id'), nullable=False)
-    id_medico = db.Column(db.String(36), db.ForeignKey('medico.id'), nullable=False)
+    id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
     sexo = db.Column(db.String(10), nullable=False)
     tipo_sanguineo = db.Column(db.String(5), nullable=False)
     detalhes_clinicos = db.Column(db.Text)
+    cep = db.Column(db.String(50))
     logradouro = db.Column(db.String(100))
     bairro = db.Column(db.String(50))
     cidade = db.Column(db.String(50))
@@ -69,6 +70,7 @@ class Clinica(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     foto_perfil = db.Column(db.Text, nullable=True)
     senha = db.Column(db.String(100), nullable=False)
+    cep = db.Column(db.String(50))
     logradouro = db.Column(db.String(100))
     bairro = db.Column(db.String(50))
     cidade = db.Column(db.String(50))
@@ -76,6 +78,7 @@ class Clinica(db.Model):
     estado = db.Column(db.String(2))
     medicos = db.relationship('Medico', secondary=medico_clinica_association, backref='clinica')
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
+    pacientes = db.relationship('Paciente', backref='clinica', lazy=True)
     def __init__(self, cnpj, nome, senha,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
                  ,numero=None,estado=None):
         if id is None:
@@ -107,7 +110,6 @@ class Medico(db.Model):
     verification_code_expiration = db.Column(db.DateTime, nullable=True)
     clinicas = db.relationship('Clinica', secondary=medico_clinica_association, backref='medico')
     diagnosticos = db.relationship('Diagnostico', backref='medico', lazy=True)
-    pacientes = db.relationship('Paciente', backref='medico', lazy=True)
     def __init__(self, id_pessoa, crm, especialidade,senha,email, id=None, foto_perfil=None):
         if id is None:
             self.id = str(uuid.uuid4())
