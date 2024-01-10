@@ -40,16 +40,17 @@ class Paciente(db.Model):
     numero = db.Column(db.String(10))
     estado = db.Column(db.String(2))
     diagnosticos = db.relationship('Diagnostico', backref='paciente', lazy=True)
-    def __init__(self, id_pessoa,id_medico, sexo, tipo_sanguineo, detalhes_clinicos, logradouro, bairro, cidade, numero, estado, id=None):
+    def __init__(self, id_pessoa,id_clinica, sexo, tipo_sanguineo, detalhes_clinicos, cep,logradouro, bairro, cidade, numero, estado, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
             self.id = id
         self.id_pessoa = id_pessoa
-        self.id_medico = id_medico
+        self.id_clinica = id_clinica
         self.sexo = sexo
         self.tipo_sanguineo = tipo_sanguineo
         self.detalhes_clinicos = detalhes_clinicos
+        self.cep = cep
         self.logradouro = logradouro
         self.bairro = bairro
         self.cidade = cidade

@@ -101,6 +101,7 @@ def get_clinicas_medico(medico_id):
             'cep': clinica.cep,
             'cnpj': clinica.cnpj,
             'email' : clinica.email,
+            'nome' : clinica.nome,
             'foto_perfil': clinica.foto_perfil,
             
         } for clinica in clinicas]

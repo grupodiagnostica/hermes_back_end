@@ -15,6 +15,7 @@ def create_paciente():
         db.session.commit()
         return jsonify({'message': 'Paciente criado com sucesso'}), 201
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 # Rota para obter pacientes
@@ -44,7 +45,7 @@ def get_pacientes():
     if id_pessoa:
         query = query.filter(Paciente.id_pessoa == id_pessoa)
     if id_clinica:
-        query = query.filter(Paciente.id_medico == id_clinica)
+        query = query.filter(Paciente.id_clinica == id_clinica)
     if sexo:
         query = query.filter(Paciente.sexo == sexo)
     if tipo_sanguineo:
