@@ -1,6 +1,4 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-import uuid
 from models import db
 
 # Substitua os valores abaixo pelas suas credenciais e informações de conexão

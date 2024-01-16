@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 from models import Pessoa,db
-from flask_cors import CORS
 from routes.login import token_required
 pessoa_bp = Blueprint('pessoa', __name__)
 
