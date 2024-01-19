@@ -111,7 +111,7 @@ class Medico(db.Model):
     verification_code_expiration = db.Column(db.DateTime, nullable=True)
     clinicas = db.relationship('Clinica', secondary=medico_clinica_association, backref='medico')
     diagnosticos = db.relationship('Diagnostico', backref='medico', lazy=True)
-    def __init__(self, id_pessoa, crm, especialidade,senha,email, id=None, foto_perfil=None):
+    def __init__(self, id_pessoa, crm, especialidade, senha, email, id=None, foto_perfil=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
