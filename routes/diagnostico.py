@@ -18,6 +18,7 @@ def create_diagnostico():
            'id' : novo_diagnostico.id,
            'modelo' : novo_diagnostico.modelo,
            'id_medico' : novo_diagnostico.id_medico,
+           'id_clinica' : novo_diagnostico.id_clinica,
            'data_hora' : novo_diagnostico.data_hora,
            'id_paciente' : novo_diagnostico.id_paciente,
            'laudo_medico' : novo_diagnostico.laudo_medico,
@@ -59,6 +60,7 @@ def get_diagnosticos():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
     id_medico = request.args.get('id_medico')
+    id_clinica = request.args.get('id_clinica')
     id_paciente = request.args.get('id_paciente')
 
     # Consulta inicial para todos os diagnósticos
@@ -69,6 +71,8 @@ def get_diagnosticos():
         query = query.filter(Diagnostico.id == id)
     if id_medico:
         query = query.filter(Diagnostico.id_medico == id_medico)
+    if id_clinica:
+        query = query.filter(Diagnostico.id_clinica == id_clinica)
     if id_paciente:
         query = query.filter(Diagnostico.id_paciente == id_paciente)
 
@@ -82,6 +86,7 @@ def get_diagnosticos():
             'id': diagnostico.id,
             'modelo': diagnostico.modelo,
             'id_medico': diagnostico.id_medico,
+            'id_clinica' : diagnostico.id_clinica,
             'data_hora': str(diagnostico.data_hora),
             'raio_x': diagnostico.raio_x,
             'id_paciente': diagnostico.id_paciente,

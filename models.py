@@ -80,6 +80,7 @@ class Clinica(db.Model):
     medicos = db.relationship('Medico', secondary=medico_clinica_association, backref='clinica')
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
     pacientes = db.relationship('Paciente', backref='clinica', lazy=True)
+    diagnosticos = db.relationship('Diagnostico', backref='clinica', lazy=True)
     def __init__(self, cnpj, nome, senha,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
                  ,numero=None,estado=None):
         if id is None:
@@ -186,6 +187,7 @@ class Diagnostico(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     # id_modelo = db.Column(db.String(36), db.ForeignKey('modelo.id'), nullable=False)
     modelo = db.Column(db.String(255))
+    id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
     id_medico = db.Column(db.String(36), db.ForeignKey('medico.id'), nullable=False)
     data_hora = db.Column(db.DateTime, nullable=False)
     raio_x = db.Column(db.Text)
@@ -195,7 +197,7 @@ class Diagnostico(db.Model):
     resultado_modelo = db.Column(db.String(255))
     resultado_real = db.Column(db.String(255))
 
-    def __init__(self, modelo,raio_x, id_medico, data_hora, id_paciente, laudo_medico, mapa_calor ,resultado_modelo, resultado_real ,id=None):
+    def __init__(self, modelo,raio_x, id_medico,id_clinica, data_hora, id_paciente, laudo_medico, mapa_calor ,resultado_modelo, resultado_real ,id=None):
             if id is None:
                 self.id = str(uuid.uuid4())
             else:
@@ -203,10 +205,12 @@ class Diagnostico(db.Model):
             self.modelo = modelo
             self.raio_x = raio_x
             self.id_medico = id_medico
+            self.id_clinica = id_clinica
             self.data_hora = data_hora
             self.id_paciente = id_paciente
             self.laudo_medico = laudo_medico
             self.mapa_calor = mapa_calor
             self.resultado_modelo = resultado_modelo
             self.resultado_real = resultado_real
+
 
