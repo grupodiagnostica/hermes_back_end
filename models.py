@@ -5,6 +5,18 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+class Administrador(db.Model):
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+    senha = db.Column(db.String(100), nullable=False)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    def __init__(self, senha, username, id=None):
+        if id is None:
+            self.id = str(uuid.uuid4())
+        else:
+            self.id = id
+        self.senha = senha
+        self.username = username
+
 class Pessoa(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     cpf = db.Column(db.String(14), unique=True, nullable=False)
