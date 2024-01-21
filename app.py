@@ -4,8 +4,7 @@ import numpy as np
 from flask_cors import CORS
 
 from flask import Flask, redirect, render_template
-import uuid
-from models import db, Medico
+from models import db, Diagnostico
 from routes.medico import medico_bp
 from routes.pessoa import pessoa_bp
 from routes.paciente import paciente_bp
@@ -13,9 +12,7 @@ from routes.clinica import clinica_bp
 from routes.diagnostico import diagnostico_bp
 from routes.funcionario import funcionario_bp
 from routes.login import login_bp
-# from routes.modelo import modelo_bp
-# from routes.doenca import doenca_bp
-from models import Pessoa
+from routes.email import email_bp
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
 import scipy as sp
@@ -28,12 +25,9 @@ from dotenv import load_dotenv
 import os
 from flask_mail import Mail, Message
 from oauthlib.oauth2 import WebApplicationClient
-import random
-import bcrypt
 from datetime import datetime, timedelta
-import yagmail
-from sendEmail import send
-from sendEmail import send_mail
+import glob
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -43,91 +37,9 @@ CORS(pessoa_bp, origins='*')
 app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
 jwt = JWTManager(app)
 
-# ---------------------------- email ------------------- refatorar depois
-
-mail = Mail(app)
-
-def enviar_email_codigo_verificacao(destinatario, verification_code):
-    try:
-        sender_email = "grupodiagnosticatic@gmail.com"
-        receiver_email = destinatario
-        subject = "Codigo de verificação"
-        body = f'Seu código de verificação é: {verification_code}'
-
-        yag = yagmail.SMTP(sender_email, oauth2_file='./client.json')
-        yag.send(to=receiver_email, subject=subject, contents=body)
-        yag.close()
-
-        return True
-    except Exception as e:
-        print(str(e))
-        return False
-    
-def generate_verification_code():
-    # Gera um código de verificação de 6 dígitos
-    return str(random.randint(100000, 999999))
-
-@app.route('/enviar-codigo-verificacao', methods=['POST'])
-def enviar_codigo_verificacao():
-    try:
-        data = request.json
-        email = data['email']
-
-        medico = Medico.query.filter_by(email=email).first()
-
-        if medico:
-            # Gerar um código de verificação
-            verification_code = generate_verification_code()
-
-            # Definir o código e o tempo de expiração no modelo
-            medico.verification_code = verification_code
-            medico.verification_code_expiration = datetime.utcnow() + timedelta(minutes=10)  # Pode ajustar o tempo de expiração conforme necessário
-
-            db.session.commit()
-
-            # Enviar e-mail com o código de verificação
-            send('email.teste.dvs@gmail.com', 'grupodiagnosticatic@gmail.com' , "Codigo de verificação", verification_code)
-            return jsonify({'message': 'Um código de verificação foi enviado para o seu e-mail'})
-        else:
-            return jsonify({'error': 'Médico não encontrado'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-    
-@app.route('/redefinir-senha', methods=['POST'])
-def redefinir_senha():
-    try:
-        data = request.json
-        email = data['email']
-        verification_code = data['verification_code']
-        nova_senha = data['nova_senha']
-
-        medico = Medico.query.filter_by(email=email).first()
-
-        if medico and medico.verification_code == verification_code and medico.verification_code_expiration > datetime.utcnow():
-            # Atualizar a senha e limpar o código de verificação
-            medico.senha = bcrypt.hashpw(nova_senha.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            medico.verification_code = None
-            medico.verification_code_expiration = None
-
-            db.session.commit()
-
-            return jsonify({'message': 'Senha redefinida com sucesso'})
-        else:
-            return jsonify({'error': 'Código inválido ou expirado'}), 401
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-    
-
-# ------------------------------------ email -----------------------
-
-
 # Carrega o modelo .h5
-model1 = './modeloXception.h5'
-model2 = './model-24-0.9730-2023-11-19.h5'
-models = []
-models.append(model1)
-models.append(model2)
-
+diretorio_modelos = './models'
+models = glob.glob(f'{diretorio_modelos}/model*.h5')
 
 
 def cam_result(features, results, gap_weights) -> tuple:
@@ -167,9 +79,58 @@ app.register_blueprint(diagnostico_bp)
 app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
 app.register_blueprint(login_bp)
+app.register_blueprint(email_bp)
 # app.register_blueprint(doenca_bp)
 # app.register_blueprint(modelo_bp)
 
+
+# Obtendo a data e hora atuais
+data_atual = datetime.now()
+
+# Formatando a data
+formato_data = "%Y-%m-%d"
+data_formatada = data_atual.strftime(formato_data)
+
+
+@app.route('/retroalimentacao/<int:model_id>', methods=['POST'])
+def retroalimentacao(model_id):
+    try:
+        print(model_id)
+        model_path = models[model_id - 1]
+        id_medico = request.args.get('id_medico')
+        model = tf.keras.models.load_model(model_path)
+        query = Diagnostico.query
+        # Execute a consulta
+        diagnosticos = query.all()
+        if id_medico:
+            query = query.filter(Diagnostico.id_medico == id_medico)
+
+        # Converta os resultados em um formato JSON
+        images_orig = []
+        images = []
+        labels = []
+        for diagnostico in diagnosticos:
+            images_orig.append(diagnostico.raio_x)
+            labels.append(diagnostico.resultado_real)
+        for image_orig in images_orig:
+            image = cv2.imdecode(np.frombuffer(image_orig, np.int8), cv2.IMREAD_COLOR)
+            
+            image = cv2.equalizeHist(cv2.resize(cv2.cvtColor(image, cv2.COLOR_RGB2GRAY), (224, 224)))
+            image = np.array(image) / 255
+            image = image.reshape(-1, 224, 224, 1) 
+
+            image_orig = cv2.resize(image, (224, 224))
+            images.append(image_orig)
+        
+        model.fit(images, labels, epochs=5, batch_size=32)
+        tf.keras.models.save_model(model,f'./model_{data_formatada}')
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response = jsonify({"data": "Retroalimentação concluida"})
+        del model
+        return response
+    except Exception as e:
+        response = jsonify({'error': str(e)})
+        return response
 
 @app.route('/predict/<int:model_id>', methods=['POST'])
 def predict(model_id):
@@ -188,7 +149,7 @@ def predict(model_id):
 
         image_orig = cv2.resize(image_orig, (224, 224))
         
-        if model_id == 2:
+        if model_id == 1:
 
             gap_weights = model.layers[-1].get_weights()[0]
             cam_model  = tf.keras.models.Model(inputs=[model.input], outputs=[model.layers[-8].output, model.output])
@@ -224,7 +185,6 @@ def predict(model_id):
             # Converter o buffer de bytes para base64
             imagem_base64 = base64.b64encode(img_byte_array.getvalue()).decode('utf-8')
             data = {'predictions': result, 'image':imagem_base64}    
-            print(data['predictions'])        
         else:
             image = tf.cast(image, tf.float32) / 255.0
             predictions = model.predict(image)
