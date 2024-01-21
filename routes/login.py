@@ -44,7 +44,7 @@ def token_required(f):
 
 # Rota para fazer login
 @login_bp.route('/login', methods=['POST'])
-def login_medico():
+def login_medico_clinica():
     try:
         data = request.json
         senha = data['senha']
@@ -107,7 +107,7 @@ def login_medico():
     
 # Rota para fazer login
 @login_bp.route('/login', methods=['POST'])
-def login_medico():
+def login_adm():
     try:
         data = request.json
         senha = data['senha']
