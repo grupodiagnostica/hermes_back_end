@@ -23,7 +23,7 @@ def get_modelos():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
     nome = request.args.get('nome')
-    id_doenca = request.args.get('id_clinica')
+    id_clinica = request.args.get('id_clinica')
 
     # Consulta inicial para todos os modelos
     query = Modelo.query
