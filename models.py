@@ -5,6 +5,18 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+class Administrador(db.Model):
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+    senha = db.Column(db.String(100), nullable=False)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    def __init__(self, senha, username, id=None):
+        if id is None:
+            self.id = str(uuid.uuid4())
+        else:
+            self.id = id
+        self.senha = senha
+        self.username = username
+
 class Pessoa(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     cpf = db.Column(db.String(14), unique=True, nullable=False)
@@ -80,6 +92,7 @@ class Clinica(db.Model):
     medicos = db.relationship('Medico', secondary=medico_clinica_association, backref='clinica')
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
     pacientes = db.relationship('Paciente', backref='clinica', lazy=True)
+    diagnosticos = db.relationship('Diagnostico', backref='clinica', lazy=True)
     def __init__(self, cnpj, nome, senha,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
                  ,numero=None,estado=None):
         if id is None:
@@ -186,6 +199,7 @@ class Diagnostico(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     # id_modelo = db.Column(db.String(36), db.ForeignKey('modelo.id'), nullable=False)
     modelo = db.Column(db.String(255))
+    id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
     id_medico = db.Column(db.String(36), db.ForeignKey('medico.id'), nullable=False)
     id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
     data_hora = db.Column(db.DateTime, nullable=False)
@@ -212,4 +226,5 @@ class Diagnostico(db.Model):
         self.mapa_calor = mapa_calor
         self.resultado_modelo = resultado_modelo
         self.resultado_real = resultado_real
+
 

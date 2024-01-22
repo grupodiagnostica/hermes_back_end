@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Medico, Clinica
+from models import db, Medico, Clinica, Administrador
 import bcrypt
 from datetime import datetime, timedelta
 import jwt 
@@ -44,7 +44,7 @@ def token_required(f):
 
 # Rota para fazer login
 @login_bp.route('/login', methods=['POST'])
-def login_medico():
+def login_medico_clinica():
     try:
         data = request.json
         senha = data['senha']
@@ -100,6 +100,31 @@ def login_medico():
                                 'data': clinicaJson})  
             else:
                 return jsonify({'error': 'CNPJ ou senha incorretos'}), 401
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+    
+# Rota para fazer login
+@login_bp.route('/login', methods=['POST'])
+def login_adm():
+    try:
+        data = request.json
+        senha = data['senha']
+        username = data['username']
+        # Consulta o médico pelo username
+        administrador = Administrador.query.filter_by(username=username).first()
+
+        if administrador and bcrypt.checkpw(senha.encode('utf-8'), administrador.senha.encode('utf-8')):
+            # Gerar um token de autenticação
+            access_token = generate_access_token(administrador.email)
+            administradorJson = {
+            'id': administrador.id,
+            'username' : administrador.username,
+            }
+            return jsonify({'token': access_token,
+                            'data': administradorJson})  
+        else:
+            return jsonify({'error': 'Email ou senha incorretos'}), 401
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 400
