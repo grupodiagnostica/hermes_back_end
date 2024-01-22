@@ -13,6 +13,7 @@ from routes.diagnostico import diagnostico_bp
 from routes.funcionario import funcionario_bp
 from routes.login import login_bp
 from routes.email import email_bp
+from routes.modelo import modelo_bp
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
 import scipy as sp
@@ -40,6 +41,7 @@ jwt = JWTManager(app)
 # Carrega o modelo .h5
 diretorio_modelos = './models'
 models = glob.glob(f'{diretorio_modelos}/model*.h5')
+print(models)
 
 
 def cam_result(features, results, gap_weights) -> tuple:
@@ -80,8 +82,7 @@ app.register_blueprint(clinica_bp)
 app.register_blueprint(medico_bp)
 app.register_blueprint(login_bp)
 app.register_blueprint(email_bp)
-# app.register_blueprint(doenca_bp)
-# app.register_blueprint(modelo_bp)
+app.register_blueprint(modelo_bp)
 
 
 # Obtendo a data e hora atuais
@@ -203,6 +204,7 @@ def predict(model_id):
         del model
         return response
     except Exception as e:
+        print(e)
         response = jsonify({'error': str(e)})
         return response
 
