@@ -93,6 +93,7 @@ class Clinica(db.Model):
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
     pacientes = db.relationship('Paciente', backref='clinica', lazy=True)
     diagnosticos = db.relationship('Diagnostico', backref='clinica', lazy=True)
+    modelos = db.relationship('Modelo', backref='clinica', lazy=True)
     def __init__(self, cnpj, nome, senha,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
                  ,numero=None,estado=None):
         if id is None:
@@ -159,42 +160,6 @@ class Funcionario(db.Model):
         self.especialista = especialista
         self.id_clinica = id_clinica
 
-# -------------- doença não utilizada por equanto ---------------
-# class Doenca(db.Model):
-#     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
-#     nome = db.Column(db.String(100), nullable=False)
-#     # modelos = db.relationship('Modelo', backref='doenca', lazy=True)
-#     def __init__(self, nome, id=None):
-#         if id is None:
-#             self.id = str(uuid.uuid4())
-#         else:
-#             self.id = id
-#         self.nome = nome
-
-# -------------- modelo não utilizado por equanto ---------------
-# class Modelo(db.Model):
-#     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
-#     nome = db.Column(db.String(100), nullable=False)
-#     versao = db.Column(db.String(10))
-#     acuracia = db.Column(db.Float)
-#     sensibilidade = db.Column(db.Float)
-#     precisao = db.Column(db.Float)
-#     f1_score = db.Column(db.Float)
-#     id_doenca = db.Column(db.String(36), db.ForeignKey('doenca.id'), nullable=False)
-
-#     def __init__(self, nome, versao, acuracia, sensibilidade, precisao, f1_score, id_doenca, id=None):
-#         if id is None:
-#             self.id = str(uuid.uuid4())
-#         else:
-#             self.id = id
-#         self.nome = nome
-#         self.versao = versao
-#         self.acuracia = acuracia
-#         self.sensibilidade = sensibilidade
-#         self.precisao = precisao
-#         self.f1_score = f1_score
-#         self.id_doenca = id_doenca
-
 class Diagnostico(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     # id_modelo = db.Column(db.String(36), db.ForeignKey('modelo.id'), nullable=False)
@@ -224,5 +189,35 @@ class Diagnostico(db.Model):
             self.mapa_calor = mapa_calor
             self.resultado_modelo = resultado_modelo
             self.resultado_real = resultado_real
+
+class Modelo(db.Model):
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+    id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
+    nome = db.Column(db.String(100), nullable=False)
+    precisao = db.Column(db.String(15))
+    acuracia = db.Column(db.String(15))
+    f1score = db.Column(db.String(15))
+    recall = db.Column(db.String(15))
+    kappa = db.Column(db.String(15))
+    filtros = db.Column(db.String(510))
+    dataAugmentation = db.Column(db.Boolean, default=False)
+    tipoImagem = db.Column(db.String(15))
+
+    def __init__(self, id_clinica, precisao, acuracia, f1score, recall, kappa, filtros, dataAugmentation, tipoImagem, id=None):
+        if id is None:
+            self.id = str(uuid.uuid4())
+        else:
+            self.id = id
+        self.id_clinica = id_clinica
+        self.precisao = precisao
+        self.acuracia = acuracia
+        self.f1score = f1score
+        self.recall = recall
+        self.kappa = kappa
+        self.filtros = filtros
+        self.dataAugmentation = dataAugmentation
+        self.tipoImagem = tipoImagem
+
+   
 
 

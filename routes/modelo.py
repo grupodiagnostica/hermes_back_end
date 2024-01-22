@@ -23,7 +23,7 @@ def get_modelos():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
     nome = request.args.get('nome')
-    id_doenca = request.args.get('id_doenca')
+    id_doenca = request.args.get('id_clinica')
 
     # Consulta inicial para todos os modelos
     query = Modelo.query
@@ -33,8 +33,8 @@ def get_modelos():
         query = query.filter(Modelo.id == id)
     if nome:
         query = query.filter(Modelo.nome.ilike(f"%{nome}%"))
-    if id_doenca:
-        query = query.filter(Modelo.id_doenca == id_doenca)
+    if id_clinica:
+        query = query.filter(Modelo.id_clinica == id_clinica)
 
     # Execute a consulta
     modelos = query.all()
@@ -45,12 +45,18 @@ def get_modelos():
         modelos_list.append({
             'id': modelo.id,
             'nome': modelo.nome,
-            'versao': modelo.versao,
-            'acuracia': modelo.acuracia,
-            'sensibilidade': modelo.sensibilidade,
             'precisao': modelo.precisao,
-            'f1_score': modelo.f1_score,
-            'id_doenca': modelo.id_doenca
+            'acuracia': modelo.acuracia,
+            'f1score': modelo.f1score,
+            'recall': modelo.recall,
+            'kappa': modelo.kappa,
+            'filtros': modelo.filtros,
+            'dataAugmentation': modelo.dataAugmentation,
+            'tipoImagem': modelo.tipoImagem,
+            'clinica':{
+                'nome': modelo.clinica.nome,
+                'cnpj': modelo.clinica.cnpj
+            }
         })
 
     return jsonify(modelos_list)
