@@ -72,8 +72,7 @@ def login_medico_clinica():
                     'cargo': medico.pessoa.cargo
                 }
             }
-                return jsonify({'token': access_token,
-                                'data': medicoJson})  
+                return jsonify({'token': access_token, 'data': medicoJson})  
             else:
                 return jsonify({'error': 'Email ou senha incorretos'}), 401
         else:

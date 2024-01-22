@@ -12,13 +12,14 @@ def create_diagnostico():
     try:
         data = request.json
         novo_diagnostico = Diagnostico(**data)
+
         db.session.add(novo_diagnostico)
         db.session.commit() 
-        novo_diagnostico_json={
+        novo_diagnostico_json = {
            'id' : novo_diagnostico.id,
            'modelo' : novo_diagnostico.modelo,
            'id_medico' : novo_diagnostico.id_medico,
-           'id_clinica' : novo_diagnostico.id_clinica,
+           'id_clinica': novo_diagnostico.id_clinica,
            'data_hora' : novo_diagnostico.data_hora,
            'id_paciente' : novo_diagnostico.id_paciente,
            'laudo_medico' : novo_diagnostico.laudo_medico,
