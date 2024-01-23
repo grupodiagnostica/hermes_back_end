@@ -146,3 +146,23 @@ def get_medicos_clinica(clinica_id):
     else:
         return jsonify({"mensagem": "Clínica não encontrada"}), 404
 
+@clinica_bp.route('/clinica/<string:clinica_id>/medico', methods=['PUT'])
+def update_medico_clinica(clinica_id):
+    try:
+        clinica = Clinica.query.get(clinica_id)
+        if not clinica:
+            return jsonify({'message': 'Clínica não encontrada'}), 404
+
+        data = request.json
+        medico = Medico.query.get(data['id_medico'])
+        if not medico:
+            return jsonify({'message': 'Medico não encontrada'}), 404
+        
+        medico.clinicas.append(clinica)
+        print(medico.clinicas)
+        db.session.commit()
+
+        return jsonify({'message': 'Médico adicionado à clínica com sucesso'})  
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Erro ao criar o médico'}) 

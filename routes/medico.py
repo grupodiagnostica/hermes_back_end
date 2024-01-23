@@ -56,6 +56,7 @@ def get_medicos():
     crm = request.args.get('crm')
     especialidade = request.args.get('especialidade')
 
+
     # Consulta inicial para todos os médicos
     query = Medico.query
 
@@ -69,6 +70,7 @@ def get_medicos():
 
     # Execute a consulta
     medicos = query.all()
+    print(medicos)
 
     # Converta os resultados em um formato JSON
     medicos_list = [{
