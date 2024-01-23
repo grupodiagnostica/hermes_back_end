@@ -41,7 +41,6 @@ jwt = JWTManager(app)
 # Carrega o modelo .h5
 diretorio_modelos = './models'
 models = glob.glob(f'{diretorio_modelos}/model*.h5')
-print(models)
 
 
 def cam_result(features, results, gap_weights) -> tuple:
@@ -135,10 +134,8 @@ def retroalimentacao(model_id):
 
 @app.route('/predict/<int:model_id>', methods=['POST'])
 def predict(model_id):
-    try:
-        print(model_id)
-        model_path = models[model_id - 1]
-
+    try:    
+        model_path = models[model_id]
         model = tf.keras.models.load_model(model_path)
 
         image_orig = request.files['image'].read()
@@ -155,7 +152,8 @@ def predict(model_id):
             gap_weights = model.layers[-1].get_weights()[0]
             cam_model  = tf.keras.models.Model(inputs=[model.input], outputs=[model.layers[-8].output, model.output])
             features, results = cam_model.predict(image)
-            result, map_act = cam_result(features, results,gap_weights)
+            print(results)
+            result, map_act = cam_result(features, results, gap_weights)
 
             map_act = cv2.normalize(map_act, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
