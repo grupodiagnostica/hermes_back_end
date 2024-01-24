@@ -154,7 +154,8 @@ def update_medico_clinica(clinica_id):
             return jsonify({'message': 'Clínica não encontrada'}), 404
 
         data = request.json
-        medico = Medico.query.get(data['id_medico'])
+        print(data)
+        medico = Medico.query.filter(Medico.crm == data['crm']).first()
         if not medico:
             return jsonify({'message': 'Medico não encontrada'}), 404
         
