@@ -48,9 +48,10 @@ def login_medico_clinica():
     try:
         data = request.json
         senha = data['senha']
-        username = data['username']
+        print(data)
         # Consulta o médico pelo username
-        if username != None:
+        if data['username']:
+            username = data['username']
             administrador = Administrador.query.filter_by(username=username).first()
 
             if administrador and bcrypt.checkpw(senha.encode('utf-8'), administrador.senha.encode('utf-8')):
