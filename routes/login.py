@@ -55,7 +55,7 @@ def login_medico_clinica():
 
             if administrador and bcrypt.checkpw(senha.encode('utf-8'), administrador.senha.encode('utf-8')):
                 # Gerar um token de autenticação
-                access_token = generate_access_token(administrador.email)
+                access_token = generate_access_token(administrador.username)
                 administradorJson = {
                 'id': administrador.id,
                 'username' : administrador.username,
