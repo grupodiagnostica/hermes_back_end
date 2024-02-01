@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models import db, Diagnostico
+from sqlalchemy import extract
 from datetime import datetime
 from routes.login import token_required
 
@@ -147,4 +148,109 @@ def delete_diagnostico(diagnostico_id):
         db.session.commit()
         return jsonify({'message': 'Diagnóstico excluído com sucesso'})
     except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+# Rota enviar o número de atendimentos realizados em um determinado ano
+@diagnostico_bp.route('/diagnostico/atendimentos/<int:anoRef>', methods=['POST'])
+@token_required
+def diagnostico_atendimentos(anoRef):
+    try:
+        args = request.json
+        diagnosticos = Diagnostico.query.filter(extract('year', Diagnostico.data_hora) == anoRef).filter(Diagnostico.id_clinica == args['clinica_id']).all()
+        if not diagnosticos:
+            return jsonify({'message': 'Não existem atendimentos', 'result': 0}), 200
+
+        messes = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
+        for i in range(len(messes)): messes[i] += f'/{anoRef % 2000}'
+        atendimentos = [0 for _ in range(len(messes))]
+
+        for diagnostico in diagnosticos:
+            atendimentos[diagnostico.data_hora.month - 1] += 1
+
+        return jsonify({'result': 1, 'labels': messes, 'data': atendimentos}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+    
+# Rota enviar o número convergências e divergências entre médicos e modelo
+@diagnostico_bp.route('/diagnostico/classificacoes/<string:modelo>', methods=['POST'])
+@token_required
+def diagnostico_classificacoes(modelo):
+    try:
+        args = request.json
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id']).all()
+        if not diagnosticos:
+            return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
+
+        labels = ['Convergente', 'Divergente']
+        classificacoes = [0, 0]
+
+        for diagnostico in diagnosticos:
+            if diagnostico.resultado_real == diagnostico.resultado_modelo:
+                classificacoes[0] += 1
+            else:
+                classificacoes[1] += 1
+
+        return jsonify({'result': 1, 'labels': labels, 'data': classificacoes}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+
+# Rota para enviar o número de casos de doenças diagnósticadas num determinadi ano
+@diagnostico_bp.route('/diagnostico/diagnosticos/<int:anoRef>', methods=['POST'])
+@token_required
+def diagnostico_diagnosticos(anoRef):
+    try:
+        args = request.json
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id']).all()
+        if not diagnosticos:
+            return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
+
+        labels = []
+        num_casos = []
+        messes = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
+        for i in range(len(messes)): messes[i] += f'/{anoRef % 2000}'
+        labels_casos:dict[list] = dict()
+        
+        for diagnostico in diagnosticos:
+            if diagnostico.resultado_real not in labels_casos.keys():
+                labels_casos[diagnostico.resultado_real] = [0 for _ in range(len(messes))]
+                labels_casos[diagnostico.resultado_real][diagnostico.data_hora.month - 1] += 1
+            else:
+                labels_casos[diagnostico.resultado_real][diagnostico.data_hora.month - 1] += 1
+
+        for label, num_caso in labels_casos.items():
+            labels.append(label)
+            num_casos.append(num_caso)
+
+        return jsonify({'result': 1, 'labels': messes, 'lines': labels, 'data': num_casos}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+    
+# Rota para enviar uma comparação entre as classificações do modelo e diagnósticos dos médicos
+@diagnostico_bp.route('/diagnostico/diagnosticos/classificacoes', methods=['POST'])
+@token_required
+def diagnostico_diagnosticos_classificacoes():
+    try:
+        args = request.json
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id']).all()
+        if not diagnosticos:
+            return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
+
+        labels = ['Diagnósticos', 'Classificações']
+        classes = ['PNEUMONIA', 'COVID19', 'TUBERCULOSE', 'NORMAL']
+        num_casos = [[0 for _ in range(len(classes))] for _ in range(len(labels))]
+        
+        for diagnostico in diagnosticos:
+            if diagnostico.resultado_real in classes:
+                index = classes.index(diagnostico.resultado_real)
+                num_casos[0][index] += 1
+            if diagnostico.resultado_modelo in classes:
+                index = classes.index(diagnostico.resultado_modelo)
+                num_casos[1][index] += 1
+
+        return jsonify({'result': 1, 'labels': labels, 'classes': classes, 'data': num_casos}), 200
+    except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400

@@ -1,14 +1,8 @@
 from flask import Blueprint, request, jsonify
 from models import db, Medico
 import bcrypt
-from datetime import datetime, timedelta
 from routes.login import token_required
-import jwt 
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required
-from functools import wraps
 from dotenv import load_dotenv
-import os
-from flask_mail import Mail, Message
 load_dotenv()
 
 
@@ -70,7 +64,6 @@ def get_medicos():
 
     # Execute a consulta
     medicos = query.all()
-    print(medicos)
 
     # Converta os resultados em um formato JSON
     medicos_list = [{
@@ -92,6 +85,7 @@ def get_medicos():
 
     return jsonify(medicos_list)
 
+# Rota para saber as clínicas associadas a um médico
 @medico_bp.route('/medico/<string:medico_id>/clinica', methods=['GET'])
 def get_clinicas_medico(medico_id):
     medico = Medico.query.get(medico_id)
@@ -169,21 +163,21 @@ def update_medico(medico_id):
         db.session.commit()
 
         medicoJson = {
-        'id': medico.id,
-        'id_pessoa': medico.id_pessoa,
-        'crm': medico.crm,
-        'especialidade': medico.especialidade,
-        'senha': medico.senha,
-        'email' : medico.email,
-        'foto_perfil': medico.foto_perfil,
-        'pessoa': {
-            'id': medico.pessoa.id,
-            'cpf': medico.pessoa.cpf,
-            'data_nascimento': str(medico.pessoa.data_nascimento),
-            'nome': medico.pessoa.nome,
-            'telefone': medico.pessoa.telefone,
-            'cargo': medico.pessoa.cargo
-        }
+            'id': medico.id,
+            'id_pessoa': medico.id_pessoa,
+            'crm': medico.crm,
+            'especialidade': medico.especialidade,
+            'senha': medico.senha,
+            'email' : medico.email,
+            'foto_perfil': medico.foto_perfil,
+            'pessoa': {
+                'id': medico.pessoa.id,
+                'cpf': medico.pessoa.cpf,
+                'data_nascimento': str(medico.pessoa.data_nascimento),
+                'nome': medico.pessoa.nome,
+                'telefone': medico.pessoa.telefone,
+                'cargo': medico.pessoa.cargo
+            }
         }
         return jsonify({'data': medicoJson})
     except Exception as e:
@@ -203,3 +197,33 @@ def delete_medico(medico_id):
         return jsonify({'message': 'Médico excluído com sucesso'})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+# Rota para saber se uma médico já existe pelo crm
+@medico_bp.route('/medico/<string:medico_crm>', methods=['POST'])
+@token_required
+def existe_medico(medico_crm):
+    try:
+        medico = Medico.query.filter(Medico.crm == medico_crm).first()
+        if medico:
+            medicoJson = {
+                'id': medico.id,
+                'id_pessoa': medico.id_pessoa,
+                'crm': medico.crm,
+                'especialidade': medico.especialidade,
+                'senha': medico.senha,
+                'email' : medico.email,
+                'foto_perfil': medico.foto_perfil,
+                'pessoa': {
+                    'id': medico.pessoa.id,
+                    'cpf': medico.pessoa.cpf,
+                    'data_nascimento': str(medico.pessoa.data_nascimento),
+                    'nome': medico.pessoa.nome,
+                    'telefone': medico.pessoa.telefone,
+                    'cargo': medico.pessoa.cargo
+                }
+            }
+            return jsonify({'result': 1, 'data': medicoJson}), 200
+        return jsonify({'result': 0}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
