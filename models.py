@@ -93,7 +93,6 @@ class Clinica(db.Model):
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
     pacientes = db.relationship('Paciente', backref='clinica', lazy=True)
     diagnosticos = db.relationship('Diagnostico', backref='clinica', lazy=True)
-    modelos = db.relationship('Modelo', backref='clinica', lazy=True)
     def __init__(self, cnpj, nome, senha,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
                  ,numero=None,estado=None):
         if id is None:
@@ -194,8 +193,8 @@ class Diagnostico(db.Model):
 
 class Modelo(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
-    id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
     nome = db.Column(db.String(100), nullable=False)
+    cnpj = db.Column(db.String(100), nullable=False)
     precisao = db.Column(db.String(15))
     acuracia = db.Column(db.String(15))
     f1score = db.Column(db.String(15))
@@ -205,12 +204,12 @@ class Modelo(db.Model):
     dataAugmentation = db.Column(db.Boolean, default=False)
     tipoImagem = db.Column(db.String(15))
 
-    def __init__(self, id_clinica, precisao, acuracia, f1score, recall, kappa, filtros, dataAugmentation, tipoImagem, id=None):
+    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, dataAugmentation, tipoImagem, cnpj, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
             self.id = id
-        self.id_clinica = id_clinica
+        self.cnpj = cnpj
         self.precisao = precisao
         self.acuracia = acuracia
         self.f1score = f1score

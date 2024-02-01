@@ -23,7 +23,7 @@ def get_modelos():
     # Obtenha os parâmetros de consulta da URL
     id = request.args.get('id')
     nome = request.args.get('nome')
-    id_clinica = request.args.get('id_clinica')
+    cnpj = request.args.get('cnpj')
 
     # Consulta inicial para todos os modelos
     query = Modelo.query
@@ -33,8 +33,8 @@ def get_modelos():
         query = query.filter(Modelo.id == id)
     if nome:
         query = query.filter(Modelo.nome.ilike(f"%{nome}%"))
-    if id_clinica:
-        query = query.filter(Modelo.id_clinica == id_clinica)
+    if cnpj:
+        query = query.filter(Modelo.cnpj == cnpj)
 
     # Execute a consulta
     modelos = query.all()
@@ -53,10 +53,7 @@ def get_modelos():
             'filtros': modelo.filtros,
             'dataAugmentation': modelo.dataAugmentation,
             'tipoImagem': modelo.tipoImagem,
-            'clinica':{
-                'nome': modelo.clinica.nome,
-                'cnpj': modelo.clinica.cnpj
-            }
+            'cnpj':modelo.cnpj
         })
 
     return jsonify(modelos_list)
