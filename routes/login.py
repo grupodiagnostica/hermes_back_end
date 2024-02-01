@@ -105,7 +105,7 @@ def login_medico_clinica():
                 'foto_perfil': clinica.foto_perfil,
                 'cidade': clinica.cidade,
                 'estado': clinica.estado,
-                'numero': clinica.numero,
+                'numero': clinica.telefone,
                 'cep': clinica.cep,
                 'logradouro': clinica.logradouro,
                 'bairro': clinica.bairro,

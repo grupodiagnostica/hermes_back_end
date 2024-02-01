@@ -29,7 +29,7 @@ from oauthlib.oauth2 import WebApplicationClient
 from datetime import datetime, timedelta
 import glob
 
-load_dotenv()
+load_dotenv("env")
 
 app = Flask(__name__)
 
