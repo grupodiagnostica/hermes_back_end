@@ -102,3 +102,59 @@ def delete_diagnostico(diagnostico_id, diagnostico_usecase: DiagnosticoUseCase):
             return jsonify({'error': 'Diagnóstico não encontrado'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+@diagnostico_bp.route('/diagnostico/atendimentos/<int:anoRef>', methods=['POST'])
+@token_required
+@inject
+def diagnostico_atendimentos(anoRef, diagnostico_usecase: DiagnosticoUseCase):
+    try:
+        args = request.json
+        atendimentos = diagnostico_usecase.get_atendimentos_por_ano(args['clinica_id'], anoRef)
+
+        # Formatando a resposta JSON
+        return jsonify({'result': 1, 'labels': atendimentos['labels'], 'data': atendimentos['data']}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+
+@diagnostico_bp.route('/diagnostico/classificacoes/<string:modelo>', methods=['POST'])
+@token_required
+@inject
+def diagnostico_classificacoes(modelo, diagnostico_usecase: DiagnosticoUseCase):
+    try:
+        args = request.json
+        classificacoes = diagnostico_usecase.get_classificacoes(args['clinica_id'])
+
+        # Formatando a resposta JSON
+        return jsonify({'result': 1, 'labels': classificacoes['labels'], 'data': classificacoes['data']}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+
+@diagnostico_bp.route('/diagnostico/diagnosticos/<int:anoRef>', methods=['POST'])
+@token_required
+@inject
+def diagnostico_diagnosticos(anoRef, diagnostico_usecase: DiagnosticoUseCase):
+    try:
+        args = request.json
+        diagnosticos = diagnostico_usecase.get_diagnosticos_por_ano(args['clinica_id'], anoRef)
+
+        # Formatando a resposta JSON
+        return jsonify({'result': 1, 'labels': diagnosticos['labels'], 'lines': diagnosticos['lines'], 'data': diagnosticos['data']}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+
+@diagnostico_bp.route('/diagnostico/diagnosticos/classificacoes', methods=['POST'])
+@token_required
+@inject
+def diagnostico_diagnosticos_classificacoes(diagnostico_usecase: DiagnosticoUseCase):
+    try:
+        args = request.json
+        comparacoes = diagnostico_usecase.get_comparacoes_diagnosticos_classificacoes(args['clinica_id'])
+
+        # Formatando a resposta JSON
+        return jsonify({'result': 1, 'labels': comparacoes['labels'], 'classes': comparacoes['classes'], 'data': comparacoes['data']}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
