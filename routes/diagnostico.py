@@ -253,3 +253,27 @@ def diagnostico_diagnosticos_classificacoes():
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 400
+    
+# Rota para enviar o somatória de imagens disponíveis para treino
+@diagnostico_bp.route('/diagnostico/imagens/treinamento', methods=['POST'])
+@token_required
+def diagnostico_imagens_treinamento():
+    try:
+        args = request.json
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id']).all()
+        if not diagnosticos:
+            return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
+
+        classes = ['PNEUMONIA', 'COVID19', 'TUBERCULOSE', 'NORMAL', 'Total']
+        num_casos = [0 for _ in range(len(classes))]
+        
+        for diagnostico in diagnosticos:
+            if diagnostico.resultado_real in classes:
+                index = classes.index(diagnostico.resultado_real)
+                num_casos[index] += 1
+
+        num_casos[-1] = sum(num_casos)
+        return jsonify({'result': 1, 'classes': classes, 'data': num_casos}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
