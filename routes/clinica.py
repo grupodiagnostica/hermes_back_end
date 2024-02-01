@@ -72,6 +72,7 @@ def update_clinica(clinica_id):
                 'foto_perfil': clinica.foto_perfil,
                 'cidade': clinica.cidade,
                 'estado': clinica.estado,
+                'telefone': clinica.telefone,
                 'numero': clinica.numero,
                 'cep': clinica.cep,
                 'logradouro': clinica.logradouro,
