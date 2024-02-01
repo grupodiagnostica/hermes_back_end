@@ -246,7 +246,6 @@ def diagnostico_diagnosticos_classificacoes():
             if diagnostico.resultado_real in classes:
                 index = classes.index(diagnostico.resultado_real)
                 num_casos[0][index] += 1
-            if diagnostico.resultado_modelo in classes:
                 index = classes.index(diagnostico.resultado_modelo)
                 num_casos[1][index] += 1
 
