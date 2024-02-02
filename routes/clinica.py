@@ -47,7 +47,8 @@ def get_clinicas():
         clinicas_list.append({
             'id': clinica.id,
             'cnpj': clinica.cnpj,
-            'nome': clinica.nome
+            'nome': clinica.nome,
+            'modelo_id': clinica.modelo_id,
         })
 
     return jsonify(clinicas_list)
@@ -78,6 +79,7 @@ def update_clinica(clinica_id):
                 'logradouro': clinica.logradouro,
                 'bairro': clinica.bairro,
                 'email': clinica.email,
+                'modelo_id': clinica.modelo_id,
                 }
         return jsonify({'data': clinicaJson})
     except Exception as e:

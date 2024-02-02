@@ -64,6 +64,7 @@ def get_diagnosticos():
     id_medico = request.args.get('id_medico')
     id_clinica = request.args.get('id_clinica')
     id_paciente = request.args.get('id_paciente')
+    usada = request.args.get('usada')
 
     # Consulta inicial para todos os diagnósticos
     query = Diagnostico.query
@@ -77,7 +78,11 @@ def get_diagnosticos():
         query = query.filter(Diagnostico.id_clinica == id_clinica)
     if id_paciente:
         query = query.filter(Diagnostico.id_paciente == id_paciente)
-
+    if usada:
+        boleno = False
+        if(usada == "true"):
+            boleno = True
+        query = query.filter(Diagnostico.usada == boleno)
     # Execute a consulta
     diagnosticos = query.all()
 
@@ -107,6 +112,7 @@ def get_diagnosticos():
             'logradouro': diagnostico.paciente.logradouro,
             'bairro': diagnostico.paciente.bairro,
             'detalhes_clinicos': diagnostico.paciente.detalhes_clinicos,
+            'usada':diagnostico.usada,
             'pessoa': {
                 'id': diagnostico.paciente.pessoa.id,
                 'cpf': diagnostico.paciente.pessoa.cpf,
@@ -268,7 +274,7 @@ def diagnostico_imagens_treinamento():
         num_casos = [0 for _ in range(len(classes))]
         
         for diagnostico in diagnosticos:
-            if diagnostico.resultado_real in classes:
+            if diagnostico.resultado_real in classes and not diagnostico.usada:
                 index = classes.index(diagnostico.resultado_real)
                 num_casos[index] += 1
 

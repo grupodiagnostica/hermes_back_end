@@ -89,11 +89,12 @@ class Clinica(db.Model):
     cidade = db.Column(db.String(50))
     numero = db.Column(db.String(10))
     estado = db.Column(db.String(2))
+    modelo_id = db.Column(db.String(36), nullable=True)
     medicos = db.relationship('Medico', secondary=medico_clinica_association, backref='clinica')
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
     pacientes = db.relationship('Paciente', backref='clinica', lazy=True)
     diagnosticos = db.relationship('Diagnostico', backref='clinica', lazy=True)
-    def __init__(self, cnpj, nome, senha,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
+    def __init__(self, cnpj, nome, senha, modelo_id=None ,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
                  ,numero=None,estado=None):
         if id is None:
             self.id = str(uuid.uuid4())
@@ -109,6 +110,7 @@ class Clinica(db.Model):
         self.cidade = cidade
         self.numero = numero
         self.estado = estado
+        self.modelo_id = modelo_id
         self.medicos = []
 
 
@@ -173,8 +175,9 @@ class Diagnostico(db.Model):
     mapa_calor = db.Column(db.Text)
     resultado_modelo = db.Column(db.String(255))
     resultado_real = db.Column(db.String(255))
+    usada = db.Column(db.Boolean, default=False)
 
-    def __init__(self, modelo,raio_x, id_medico, id_clinica, data_hora, id_paciente, laudo_medico, mapa_calor ,resultado_modelo, resultado_real ,id=None):
+    def __init__(self, modelo,raio_x, id_medico, id_clinica, data_hora, id_paciente, laudo_medico, mapa_calor ,resultado_modelo, resultado_real, usada ,id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
@@ -190,6 +193,7 @@ class Diagnostico(db.Model):
         self.mapa_calor = mapa_calor
         self.resultado_modelo = resultado_modelo
         self.resultado_real = resultado_real
+        self.usada = usada
 
 class Modelo(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
