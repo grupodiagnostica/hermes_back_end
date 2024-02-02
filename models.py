@@ -94,6 +94,7 @@ class Clinica(db.Model):
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
     pacientes = db.relationship('Paciente', backref='clinica', lazy=True)
     diagnosticos = db.relationship('Diagnostico', backref='clinica', lazy=True)
+    requisicoes = db.relationship('Requisicao', backref='clinica', lazy=True)
     def __init__(self, cnpj, nome, senha, modelo_id=None ,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
                  ,numero=None,estado=None):
         if id is None:
@@ -205,10 +206,10 @@ class Modelo(db.Model):
     recall = db.Column(db.String(15))
     kappa = db.Column(db.String(15))
     filtros = db.Column(db.String(510))
-    dataAugmentation = db.Column(db.Boolean, default=False)
-    tipoImagem = db.Column(db.String(15))
+    data_augmentation = db.Column(db.Boolean, default=False)
+    data_hora = db.Column(db.Date, nullable=False)
 
-    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, dataAugmentation, tipoImagem, cnpj,nome, id=None):
+    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, data_augmentation, cnpj,nome,data_hora, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
@@ -221,8 +222,23 @@ class Modelo(db.Model):
         self.recall = recall
         self.kappa = kappa
         self.filtros = filtros
-        self.dataAugmentation = dataAugmentation
-        self.tipoImagem = tipoImagem
+        self.data_augmentation = data_augmentation
+        self.data_hora = data_hora
+
+class Requisicao(db.Model):
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+    quantidade_imagens = db.Column(db.String(100), nullable=False)
+    id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
+    data_hora = db.Column(db.Date, nullable=False)
+
+    def __init__(self, id_clinica,data_hora,quantidade_imagens, id=None):
+        if id is None:
+            self.id = str(uuid.uuid4())
+        else:
+            self.id = id
+        self.quantidade_imagens = quantidade_imagens
+        self.id_clinica = id_clinica
+        self.data_hora = data_hora
 
    
 

@@ -52,8 +52,8 @@ def get_modelos():
                 'recall': modelo.recall,
                 'kappa': modelo.kappa,
                 'filtros': modelo.filtros,
-                'dataAugmentation': modelo.dataAugmentation,
-                'tipoImagem': modelo.tipoImagem,
+                'data_augmentation': modelo.data_augmentation,
+                'data_hora': modelo.data_hora,
                 'cnpj':modelo.cnpj
             })
         return jsonify({'data': modelos_list}), 200
