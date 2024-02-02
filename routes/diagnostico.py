@@ -3,7 +3,7 @@ from models import db, Diagnostico
 from sqlalchemy import extract
 from datetime import datetime
 from routes.login import token_required
-
+from sqlalchemy import desc
 diagnostico_bp = Blueprint('diagnostico', __name__)
 
 # Rota para criar um novo diagnóstico
@@ -84,7 +84,11 @@ def get_diagnosticos():
             boleno = True
         query = query.filter(Diagnostico.usada == boleno)
     # Execute a consulta
+        
+    query = query.order_by(desc(Diagnostico.data_hora))
     diagnosticos = query.all()
+
+
 
     # Converta os resultados em um formato JSON
     diagnosticos_list = []
