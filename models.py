@@ -204,11 +204,12 @@ class Modelo(db.Model):
     dataAugmentation = db.Column(db.Boolean, default=False)
     tipoImagem = db.Column(db.String(15))
 
-    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, dataAugmentation, tipoImagem, cnpj, id=None):
+    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, dataAugmentation, tipoImagem, cnpj,nome, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
             self.id = id
+        self.nome = nome
         self.cnpj = cnpj
         self.precisao = precisao
         self.acuracia = acuracia
