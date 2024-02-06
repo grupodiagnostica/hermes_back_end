@@ -19,7 +19,7 @@ def create_requisicao():
 # Rota para obter requisicaos com filtros
 @requisicao_bp.route('/requisicao', methods=['GET'])
 @token_required
-def get_requisicaos():
+def get_requisicoes():
     try:
         # Obtenha os parâmetros de consulta da URL
         id = request.args.get('id')
