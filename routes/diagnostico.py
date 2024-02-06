@@ -124,6 +124,11 @@ def get_diagnosticos():
                 'nome': diagnostico.paciente.pessoa.nome,
                 'telefone': diagnostico.paciente.pessoa.telefone,
                 'cargo': diagnostico.paciente.pessoa.cargo
+            },
+            'medico': {
+                'crm': diagnostico.medico.crm,
+                'nome': diagnostico.medico.pessoa.nome,
+                'email': diagnostico.medico.email,
             }
             }
         })
