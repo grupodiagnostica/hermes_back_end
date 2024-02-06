@@ -178,7 +178,7 @@ class Diagnostico(db.Model):
     resultado_real = db.Column(db.String(255))
     usada = db.Column(db.Boolean, default=False)
 
-    def __init__(self, modelo,raio_x, id_medico, id_clinica, data_hora, id_paciente, laudo_medico, mapa_calor ,resultado_modelo, resultado_real, usada ,id=None):
+    def __init__(self, modelo,raio_x, id_medico, id_clinica, data_hora, id_paciente, laudo_medico, mapa_calor ,resultado_modelo, resultado_real ,id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
@@ -194,7 +194,7 @@ class Diagnostico(db.Model):
         self.mapa_calor = mapa_calor
         self.resultado_modelo = resultado_modelo
         self.resultado_real = resultado_real
-        self.usada = usada
+        self.usada = False
 
 class Modelo(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
