@@ -2,8 +2,13 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime
-
+from enum import Enum
 db = SQLAlchemy()
+
+class StatusRequisicao(Enum):
+    REQUISITADO = 'Requisitado'
+    ACEITO = 'Aceito'
+    CONCLUIDO = 'Concluído'
 
 class Administrador(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -230,8 +235,9 @@ class Requisicao(db.Model):
     quantidade_imagens = db.Column(db.String(100), nullable=False)
     id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
     data_hora = db.Column(db.Date, nullable=False)
+    status = db.Column(db.Enum(StatusRequisicao), default=StatusRequisicao.REQUISITADO, nullable=False)
 
-    def __init__(self, id_clinica,data_hora,quantidade_imagens, id=None):
+    def __init__(self, id_clinica, data_hora, quantidade_imagens, status=StatusRequisicao.REQUISITADO, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
@@ -239,6 +245,7 @@ class Requisicao(db.Model):
         self.quantidade_imagens = quantidade_imagens
         self.id_clinica = id_clinica
         self.data_hora = data_hora
+        self.status = status
 
    
 

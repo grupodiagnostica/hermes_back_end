@@ -79,10 +79,10 @@ def get_diagnosticos():
     if id_paciente:
         query = query.filter(Diagnostico.id_paciente == id_paciente)
     if usada:
-        boleno = False
+        boleano = False
         if(usada == "true"):
-            boleno = True
-        query = query.filter(Diagnostico.usada == boleno)
+            boleano = True
+        query = query.filter(Diagnostico.usada == boleano)
     # Execute a consulta
         
     query = query.order_by(desc(Diagnostico.data_hora))
@@ -149,6 +149,32 @@ def update_diagnostico(diagnostico_id):
         db.session.commit()
         return jsonify({'message': 'Dados do diagnóstico atualizados com sucesso'})
     except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+@diagnostico_bp.route('/diagnostico/update_usada', methods=['PUT'])
+@token_required
+def update_diagnosticos_usada():
+    try:
+        data = request.json
+        ids = data
+
+        # Validar se os IDs foram fornecidos
+        if not ids:
+            return jsonify({'error': 'IDs inválidos'}), 400
+
+        # Consultar os diagnósticos pelos IDs fornecidos
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id.in_(ids)).all()
+
+        # Atualizar a coluna 'usada' para True em cada diagnóstico
+        for diagnostico in diagnosticos:
+            diagnostico.usada = True
+
+        # Commit das alterações no banco de dados
+        db.session.commit()
+
+        return jsonify({'message': f'Coluna "usada" dos diagnósticos atualizada para True com sucesso'})
+    except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir um diagnóstico
