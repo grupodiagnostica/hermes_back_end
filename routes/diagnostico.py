@@ -3,7 +3,7 @@ from models import db, Diagnostico
 from sqlalchemy import extract
 from datetime import datetime
 from routes.login import token_required
-
+from sqlalchemy import desc
 diagnostico_bp = Blueprint('diagnostico', __name__)
 
 # Rota para criar um novo diagnóstico
@@ -64,6 +64,7 @@ def get_diagnosticos():
     id_medico = request.args.get('id_medico')
     id_clinica = request.args.get('id_clinica')
     id_paciente = request.args.get('id_paciente')
+    usada = request.args.get('usada')
 
     # Consulta inicial para todos os diagnósticos
     query = Diagnostico.query
@@ -77,9 +78,17 @@ def get_diagnosticos():
         query = query.filter(Diagnostico.id_clinica == id_clinica)
     if id_paciente:
         query = query.filter(Diagnostico.id_paciente == id_paciente)
-
+    if usada:
+        boleano = False
+        if(usada == "true"):
+            boleano = True
+        query = query.filter(Diagnostico.usada == boleano)
     # Execute a consulta
+        
+    query = query.order_by(desc(Diagnostico.data_hora))
     diagnosticos = query.all()
+
+
 
     # Converta os resultados em um formato JSON
     diagnosticos_list = []
@@ -107,6 +116,7 @@ def get_diagnosticos():
             'logradouro': diagnostico.paciente.logradouro,
             'bairro': diagnostico.paciente.bairro,
             'detalhes_clinicos': diagnostico.paciente.detalhes_clinicos,
+            'usada':diagnostico.usada,
             'pessoa': {
                 'id': diagnostico.paciente.pessoa.id,
                 'cpf': diagnostico.paciente.pessoa.cpf,
@@ -114,6 +124,11 @@ def get_diagnosticos():
                 'nome': diagnostico.paciente.pessoa.nome,
                 'telefone': diagnostico.paciente.pessoa.telefone,
                 'cargo': diagnostico.paciente.pessoa.cargo
+            },
+            'medico': {
+                'crm': diagnostico.medico.crm,
+                'nome': diagnostico.medico.pessoa.nome,
+                'email': diagnostico.medico.email,
             }
             }
         })
@@ -134,6 +149,32 @@ def update_diagnostico(diagnostico_id):
         db.session.commit()
         return jsonify({'message': 'Dados do diagnóstico atualizados com sucesso'})
     except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+@diagnostico_bp.route('/diagnostico/update_usada', methods=['PUT'])
+@token_required
+def update_diagnosticos_usada():
+    try:
+        data = request.json
+        ids = data
+
+        # Validar se os IDs foram fornecidos
+        if not ids:
+            return jsonify({'error': 'IDs inválidos'}), 400
+
+        # Consultar os diagnósticos pelos IDs fornecidos
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id.in_(ids)).all()
+
+        # Atualizar a coluna 'usada' para True em cada diagnóstico
+        for diagnostico in diagnosticos:
+            diagnostico.usada = True
+
+        # Commit das alterações no banco de dados
+        db.session.commit()
+
+        return jsonify({'message': f'Coluna "usada" dos diagnósticos atualizada para True com sucesso'})
+    except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir um diagnóstico
@@ -246,11 +287,34 @@ def diagnostico_diagnosticos_classificacoes():
             if diagnostico.resultado_real in classes:
                 index = classes.index(diagnostico.resultado_real)
                 num_casos[0][index] += 1
-            if diagnostico.resultado_modelo in classes:
                 index = classes.index(diagnostico.resultado_modelo)
                 num_casos[1][index] += 1
 
         return jsonify({'result': 1, 'labels': labels, 'classes': classes, 'data': num_casos}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+    
+# Rota para enviar o somatória de imagens disponíveis para treino
+@diagnostico_bp.route('/diagnostico/imagens/treinamento', methods=['POST'])
+@token_required
+def diagnostico_imagens_treinamento():
+    try:
+        args = request.json
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id']).all()
+        if not diagnosticos:
+            return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
+
+        classes = ['PNEUMONIA', 'COVID19', 'TUBERCULOSE', 'NORMAL', 'Total']
+        num_casos = [0 for _ in range(len(classes))]
+        
+        for diagnostico in diagnosticos:
+            if diagnostico.resultado_real in classes and not diagnostico.usada:
+                index = classes.index(diagnostico.resultado_real)
+                num_casos[index] += 1
+
+        num_casos[-1] = sum(num_casos)
+        return jsonify({'result': 1, 'classes': classes, 'data': num_casos}), 200
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 400

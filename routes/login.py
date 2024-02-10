@@ -48,7 +48,6 @@ def login_medico_clinica():
     try:
         data = request.json
         senha = data['senha']
-        print(data)
         # Consulta o médico pelo username
         if data['username']:
             username = data['username']
@@ -94,7 +93,6 @@ def login_medico_clinica():
             # Consulta o médico pelo email
             cnpj = data['cnpj']
             clinica = Clinica.query.filter_by(cnpj=cnpj).first()
-            print(clinica)
             if clinica and bcrypt.checkpw(senha.encode('utf-8'), clinica.senha.encode('utf-8')):
                 # Gerar um token de autenticação
                 access_token = generate_access_token(clinica.cnpj)
@@ -105,6 +103,7 @@ def login_medico_clinica():
                 'foto_perfil': clinica.foto_perfil,
                 'cidade': clinica.cidade,
                 'estado': clinica.estado,
+                'telefone': clinica.telefone,
                 'numero': clinica.numero,
                 'cep': clinica.cep,
                 'logradouro': clinica.logradouro,

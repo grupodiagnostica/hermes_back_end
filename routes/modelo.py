@@ -20,43 +20,46 @@ def create_modelo():
 @modelo_bp.route('/modelo', methods=['GET'])
 @token_required
 def get_modelos():
-    # Obtenha os parâmetros de consulta da URL
-    id = request.args.get('id')
-    nome = request.args.get('nome')
-    cnpj = request.args.get('cnpj')
+    try:
+        # Obtenha os parâmetros de consulta da URL
+        id = request.args.get('id')
+        nome = request.args.get('nome')
+        cnpj = request.args.get('cnpj')
 
-    # Consulta inicial para todos os modelos
-    query = Modelo.query
+        # Consulta inicial para todos os modelos
+        query = Modelo.query
 
-    # Filtre a consulta com base nos parâmetros de consulta
-    if id:
-        query = query.filter(Modelo.id == id)
-    if nome:
-        query = query.filter(Modelo.nome.ilike(f"%{nome}%"))
-    if cnpj:
-        query = query.filter(Modelo.cnpj == cnpj)
+        # Filtre a consulta com base nos parâmetros de consulta
+        if id:
+            query = query.filter(Modelo.id == id)
+        if nome:
+            query = query.filter(Modelo.nome.ilike(f"%{nome}%"))
+        if cnpj:
+            query = query.filter(Modelo.cnpj == cnpj)
 
-    # Execute a consulta
-    modelos = query.all()
+        # Execute a consulta
+        modelos = query.all()
 
-    # Converta os resultados em um formato JSON
-    modelos_list = []
-    for modelo in modelos:
-        modelos_list.append({
-            'id': modelo.id,
-            'nome': modelo.nome,
-            'precisao': modelo.precisao,
-            'acuracia': modelo.acuracia,
-            'f1score': modelo.f1score,
-            'recall': modelo.recall,
-            'kappa': modelo.kappa,
-            'filtros': modelo.filtros,
-            'dataAugmentation': modelo.dataAugmentation,
-            'tipoImagem': modelo.tipoImagem,
-            'cnpj':modelo.cnpj
-        })
+        # Converta os resultados em um formato JSON
+        modelos_list = []
+        for modelo in modelos:
+            modelos_list.append({
+                'id': modelo.id,
+                'nome': modelo.nome,
+                'precisao': modelo.precisao,
+                'acuracia': modelo.acuracia,
+                'f1score': modelo.f1score,
+                'recall': modelo.recall,
+                'kappa': modelo.kappa,
+                'filtros': modelo.filtros,
+                'data_augmentation': modelo.data_augmentation,
+                'cnpj':modelo.cnpj,
+                'arquivo':modelo.arquivo
+            })
+        return jsonify({'data': modelos_list}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
-    return jsonify(modelos_list)
 
 
 # Rota para atualizar os dados de um modelo
