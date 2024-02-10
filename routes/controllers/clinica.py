@@ -1,6 +1,7 @@
 # controllers.py
 from flask import jsonify, Blueprint, request
 from injector import inject
+from models import Clinica
 from routes.middleware.token import token_required
 from routes.usecases.clinica import ClinicaUseCase
 
@@ -22,8 +23,7 @@ def create_clinica(clinica_usecase: ClinicaUseCase):
 def get_clinicas(clinica_usecase: ClinicaUseCase):
     cnpj = request.args.get('cnpj')
     nome = request.args.get('nome')
-    clinicas = clinica_usecase.get_clinicas(cnpj, nome)
-    clinicas_list = [{'id': clinica.id, 'cnpj': clinica.cnpj, 'nome': clinica.nome} for clinica in clinicas]
+    clinicas_list = clinica_usecase.get_clinicas(cnpj, nome)
     return jsonify(clinicas_list)
 
 @clinica_bp.route('/clinica/<string:clinica_id>', methods=['PUT'])
@@ -32,10 +32,9 @@ def get_clinicas(clinica_usecase: ClinicaUseCase):
 def update_clinica(clinica_id, clinica_usecase: ClinicaUseCase):
     try:
         data = request.json
-        clinica = Clinica.query.get(clinica_id)
-        if not clinica:
+        clinica_atualizada = clinica_usecase.update_clinica(clinica_id, data)
+        if clinica_atualizada == 0:
             return jsonify({'error': 'Clínica não encontrada'}), 404
-        clinica_atualizada = clinica_usecase.update_clinica(clinica, data)
         return jsonify({'message': 'Clínica atualizada com sucesso', 'data': clinica_atualizada}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -57,11 +56,10 @@ def delete_clinica(clinica_id, clinica_usecase: ClinicaUseCase):
 @inject
 def create_medico_clinica(clinica_id, medico_usecase: ClinicaUseCase):
     try:
-        clinica = Clinica.query.get(clinica_id)
-        if not clinica:
-            return jsonify({'message': 'Clínica não encontrada'}), 404
         data = request.json
-        novo_medico = medico_usecase.create_medico(clinica, data)
+        novo_medico = medico_usecase.create_medico(clinica_id, data)
+        if novo_medico == 0:
+            return jsonify({'message': 'Clínica não encontrada'}), 404
         return jsonify({'message': 'Médico adicionado à clínica com sucesso', 'data': novo_medico}), 201
     except Exception as e:
         return jsonify({'message': 'Erro ao criar o médico', 'error': str(e)}), 400
@@ -69,31 +67,12 @@ def create_medico_clinica(clinica_id, medico_usecase: ClinicaUseCase):
 @clinica_bp.route('/clinica/<string:clinica_id>/medico', methods=['GET'])
 @inject
 def get_medicos_clinica(clinica_id, medico_usecase: ClinicaUseCase):
-    clinica = Clinica.query.get(clinica_id)
-    if clinica:
-        medicos = medico_usecase.get_medicos(clinica)
-        medicos_list = [
-            {
-                'id': medico.id,
-                'id_pessoa': medico.id_pessoa,
-                'crm': medico.crm,
-                'especialidade': medico.especialidade,
-                'senha': medico.senha,
-                'email': medico.email,
-                'foto_perfil': medico.foto_perfil,
-                'pessoa': {
-                    'id': medico.pessoa.id,
-                    'cpf': medico.pessoa.cpf,
-                    'data_nascimento': str(medico.pessoa.data_nascimento),
-                    'nome': medico.pessoa.nome,
-                    'telefone': medico.pessoa.telefone,
-                    'cargo': medico.pessoa.cargo
-                }
-            } for medico in medicos
-        ]
+    try:
+        medicos_list = medico_usecase.get_medicos(clinica_id)
         return jsonify({"data": medicos_list})
-    else:
-        return jsonify({"mensagem": "Clínica não encontrada"}), 404
+    except Exception as e:
+        return jsonify({'message': 'Erro ao listar médicos', 'error': str(e)}), 400
+
 
 @clinica_bp.route('/clinica/<string:clinica_id>/medico', methods=['PUT'])
 @inject
@@ -103,7 +82,14 @@ def update_medico_clinica(clinica_id, medico_usecase: ClinicaUseCase):
         if not clinica:
             return jsonify({'message': 'Clínica não encontrada'}), 404
         data = request.json
-        medico_atualizado = medico_usecase.update_medico(clinica, data)
-        return jsonify({'message': 'Médico atualizado com sucesso', 'data': medico_atualizado}), 200
+        result = medico_usecase.update_medico(clinica, data)
+
+        if result == -1:
+            return jsonify({'message': 'Medico não encontrada'}), 404
+        if result == 0:
+            return jsonify({'message': 'Médico já está associado a clínica', 'result': result}), 200
+      
+        return jsonify({'message': 'Médico adicionado à clínica com sucesso', 'result': result}), 200
     except Exception as e:
         return jsonify({'message': 'Erro ao atualizar o médico', 'error': str(e)}), 400
+    

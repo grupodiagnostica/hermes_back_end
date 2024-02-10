@@ -24,52 +24,13 @@ def create_diagnostico(diagnostico_usecase: DiagnosticoUseCase):
 @inject
 def get_diagnosticos(diagnostico_usecase: DiagnosticoUseCase):
     try:
-        # Obtenha os parâmetros de consulta da URL
+        
         id = request.args.get('id')
         id_medico = request.args.get('id_medico')
         id_clinica = request.args.get('id_clinica')
         id_paciente = request.args.get('id_paciente')
 
-        # Use o caso de uso para obter os diagnósticos
-        diagnosticos = diagnostico_usecase.get_diagnosticos(id, id_medico, id_clinica, id_paciente)
-
-        # Converta os resultados em um formato JSON
-        diagnosticos_list = []
-        for diagnostico in diagnosticos:
-            # ... (formato da resposta JSON)
-           diagnosticos_list.append({
-            'id': diagnostico.id,
-            'modelo': diagnostico.modelo,
-            'id_medico': diagnostico.id_medico,
-            'id_clinica' : diagnostico.id_clinica,
-            'data_hora': str(diagnostico.data_hora),
-            'raio_x': diagnostico.raio_x,
-            'id_paciente': diagnostico.id_paciente,
-            'laudo_medico': diagnostico.laudo_medico,
-            'mapa_calor': diagnostico.mapa_calor,
-            'resultado_modelo': diagnostico.resultado_modelo,
-            'resultado_real': diagnostico.resultado_real,
-            'paciente': {
-            'id': diagnostico.paciente.id,
-            'id_pessoa': diagnostico.paciente.id_pessoa,
-            'sexo': diagnostico.paciente.sexo,
-            'tipo_sanguineo': diagnostico.paciente.tipo_sanguineo,
-            'cidade': diagnostico.paciente.cidade,
-            'estado': diagnostico.paciente.estado,
-            'numero': diagnostico.paciente.numero,
-            'logradouro': diagnostico.paciente.logradouro,
-            'bairro': diagnostico.paciente.bairro,
-            'detalhes_clinicos': diagnostico.paciente.detalhes_clinicos,
-            'pessoa': {
-                'id': diagnostico.paciente.pessoa.id,
-                'cpf': diagnostico.paciente.pessoa.cpf,
-                'data_nascimento': str(diagnostico.paciente.pessoa.data_nascimento),
-                'nome': diagnostico.paciente.pessoa.nome,
-                'telefone': diagnostico.paciente.pessoa.telefone,
-                'cargo': diagnostico.paciente.pessoa.cargo
-            }
-            }
-        })
+        diagnosticos_list = diagnostico_usecase.get_diagnosticos(id, id_medico, id_clinica, id_paciente)
 
         return jsonify(diagnosticos_list)
     except Exception as e:
@@ -108,9 +69,10 @@ def delete_diagnostico(diagnostico_id, diagnostico_usecase: DiagnosticoUseCase):
 @inject
 def diagnostico_atendimentos(anoRef, diagnostico_usecase: DiagnosticoUseCase):
     try:
-        args = request.json
+        args = request.json 
         atendimentos = diagnostico_usecase.get_atendimentos_por_ano(args['clinica_id'], anoRef)
-
+        if atendimentos == 0:
+            return jsonify({'message': 'Não existem atendimentos', 'result': 0}), 200
         # Formatando a resposta JSON
         return jsonify({'result': 1, 'labels': atendimentos['labels'], 'data': atendimentos['data']}), 200
     except Exception as e:
@@ -120,11 +82,12 @@ def diagnostico_atendimentos(anoRef, diagnostico_usecase: DiagnosticoUseCase):
 @diagnostico_bp.route('/diagnostico/classificacoes/<string:modelo>', methods=['POST'])
 @token_required
 @inject
-def diagnostico_classificacoes(modelo, diagnostico_usecase: DiagnosticoUseCase):
+def diagnostico_classificacoes( diagnostico_usecase: DiagnosticoUseCase):
     try:
         args = request.json
-        classificacoes = diagnostico_usecase.get_classificacoes(args['clinica_id'])
-
+        classificacoes = diagnostico_usecase.diagnostico_classificacoes(args['clinica_id'])
+        if classificacoes == 0:
+            return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
         # Formatando a resposta JSON
         return jsonify({'result': 1, 'labels': classificacoes['labels'], 'data': classificacoes['data']}), 200
     except Exception as e:
@@ -138,7 +101,8 @@ def diagnostico_diagnosticos(anoRef, diagnostico_usecase: DiagnosticoUseCase):
     try:
         args = request.json
         diagnosticos = diagnostico_usecase.get_diagnosticos_por_ano(args['clinica_id'], anoRef)
-
+        if diagnosticos == 0:
+            return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
         # Formatando a resposta JSON
         return jsonify({'result': 1, 'labels': diagnosticos['labels'], 'lines': diagnosticos['lines'], 'data': diagnosticos['data']}), 200
     except Exception as e:
@@ -152,7 +116,8 @@ def diagnostico_diagnosticos_classificacoes(diagnostico_usecase: DiagnosticoUseC
     try:
         args = request.json
         comparacoes = diagnostico_usecase.get_comparacoes_diagnosticos_classificacoes(args['clinica_id'])
-
+        if not comparacoes:
+            return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
         # Formatando a resposta JSON
         return jsonify({'result': 1, 'labels': comparacoes['labels'], 'classes': comparacoes['classes'], 'data': comparacoes['data']}), 200
     except Exception as e:
