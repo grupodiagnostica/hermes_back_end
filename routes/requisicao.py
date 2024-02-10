@@ -47,7 +47,7 @@ def get_requisicaos():
                 'id': requisicao.id,
                 'quantidade_imagens': requisicao.quantidade_imagens,
                 'id_clinica': requisicao.id_clinica,
-                'data_hora': requisicao.data_hora,
+                'data_hora': f'{requisicao.data_hora.day}/{requisicao.data_hora.month}/{requisicao.data_hora.year}' ,
                 'status': requisicao.status.value  # Adicione o status à resposta JSON
             })
         return jsonify({'data': requisicaos_list}), 200
