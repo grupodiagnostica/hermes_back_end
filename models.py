@@ -212,9 +212,9 @@ class Modelo(db.Model):
     kappa = db.Column(db.String(15))
     filtros = db.Column(db.String(510))
     data_augmentation = db.Column(db.Boolean, default=False)
-    data_hora = db.Column(db.Date, nullable=False)
+    arquivo = db.Column(db.String(255))
 
-    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, data_augmentation, cnpj,nome,data_hora, id=None):
+    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, data_augmentation, cnpj,nome,arquivo, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
@@ -228,7 +228,7 @@ class Modelo(db.Model):
         self.kappa = kappa
         self.filtros = filtros
         self.data_augmentation = data_augmentation
-        self.data_hora = data_hora
+        self.arquivo = arquivo
 
 class Requisicao(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
