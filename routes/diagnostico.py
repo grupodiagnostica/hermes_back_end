@@ -306,15 +306,17 @@ def diagnostico_imagens_treinamento():
             return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
 
         classes = ['PNEUMONIA', 'COVID19', 'TUBERCULOSE', 'NORMAL', 'Total']
+        ids = []
         num_casos = [0 for _ in range(len(classes))]
         
         for diagnostico in diagnosticos:
             if diagnostico.resultado_real in classes and not diagnostico.usada:
+                ids.append(diagnostico.id)
                 index = classes.index(diagnostico.resultado_real)
                 num_casos[index] += 1
 
         num_casos[-1] = sum(num_casos)
-        return jsonify({'result': 1, 'classes': classes, 'data': num_casos}), 200
+        return jsonify({'result': 1, 'classes': classes, 'data': num_casos, 'ids': ids}), 200
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 400
