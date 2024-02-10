@@ -53,8 +53,8 @@ def get_modelos():
                 'kappa': modelo.kappa,
                 'filtros': modelo.filtros,
                 'data_augmentation': modelo.data_augmentation,
-                'data_hora': modelo.data_hora,
-                'cnpj':modelo.cnpj
+                'cnpj':modelo.cnpj,
+                'arquivo':modelo.arquivo
             })
         return jsonify({'data': modelos_list}), 200
     except Exception as e:
