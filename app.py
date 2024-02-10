@@ -14,6 +14,7 @@ from routes.funcionario import funcionario_bp
 from routes.login import login_bp
 from routes.email import email_bp
 from routes.modelo import modelo_bp
+from routes.requisicao import requisicao_bp
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
 import scipy as sp
@@ -29,7 +30,7 @@ from oauthlib.oauth2 import WebApplicationClient
 from datetime import datetime, timedelta
 import glob
 
-load_dotenv()
+load_dotenv("env")
 
 app = Flask(__name__)
 
@@ -82,6 +83,7 @@ app.register_blueprint(medico_bp)
 app.register_blueprint(login_bp)
 app.register_blueprint(email_bp)
 app.register_blueprint(modelo_bp)
+app.register_blueprint(requisicao_bp)
 
 
 # Obtendo a data e hora atuais

@@ -2,8 +2,13 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime
-
+from enum import Enum
 db = SQLAlchemy()
+
+class StatusRequisicao(Enum):
+    REQUISITADO = 'Requisitado'
+    ACEITO = 'Aceito'
+    CONCLUIDO = 'Concluído'
 
 class Administrador(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -89,11 +94,13 @@ class Clinica(db.Model):
     cidade = db.Column(db.String(50))
     numero = db.Column(db.String(10))
     estado = db.Column(db.String(2))
+    modelo_id = db.Column(db.String(36), nullable=True)
     medicos = db.relationship('Medico', secondary=medico_clinica_association, backref='clinica')
     funcionarios = db.relationship('Funcionario', backref='clinica', lazy=True)
     pacientes = db.relationship('Paciente', backref='clinica', lazy=True)
     diagnosticos = db.relationship('Diagnostico', backref='clinica', lazy=True)
-    def __init__(self, cnpj, nome, senha,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
+    requisicoes = db.relationship('Requisicao', backref='clinica', lazy=True)
+    def __init__(self, cnpj, nome, senha, modelo_id=None ,id=None, foto_perfil=None, telefone=None,email=None,logradouro=None,bairro=None,cidade=None
                  ,numero=None,estado=None):
         if id is None:
             self.id = str(uuid.uuid4())
@@ -109,6 +116,7 @@ class Clinica(db.Model):
         self.cidade = cidade
         self.numero = numero
         self.estado = estado
+        self.modelo_id = modelo_id
         self.medicos = []
 
 
@@ -173,6 +181,7 @@ class Diagnostico(db.Model):
     mapa_calor = db.Column(db.Text)
     resultado_modelo = db.Column(db.String(255))
     resultado_real = db.Column(db.String(255))
+    usada = db.Column(db.Boolean, default=False)
 
     def __init__(self, modelo,raio_x, id_medico, id_clinica, data_hora, id_paciente, laudo_medico, mapa_calor ,resultado_modelo, resultado_real ,id=None):
         if id is None:
@@ -190,6 +199,7 @@ class Diagnostico(db.Model):
         self.mapa_calor = mapa_calor
         self.resultado_modelo = resultado_modelo
         self.resultado_real = resultado_real
+        self.usada = False
 
 class Modelo(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -201,14 +211,15 @@ class Modelo(db.Model):
     recall = db.Column(db.String(15))
     kappa = db.Column(db.String(15))
     filtros = db.Column(db.String(510))
-    dataAugmentation = db.Column(db.Boolean, default=False)
-    tipoImagem = db.Column(db.String(15))
+    data_augmentation = db.Column(db.Boolean, default=False)
+    arquivo = db.Column(db.String(255))
 
-    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, dataAugmentation, tipoImagem, cnpj, id=None):
+    def __init__(self, precisao, acuracia, f1score, recall, kappa, filtros, data_augmentation, cnpj,nome,arquivo, id=None):
         if id is None:
             self.id = str(uuid.uuid4())
         else:
             self.id = id
+        self.nome = nome
         self.cnpj = cnpj
         self.precisao = precisao
         self.acuracia = acuracia
@@ -216,8 +227,25 @@ class Modelo(db.Model):
         self.recall = recall
         self.kappa = kappa
         self.filtros = filtros
-        self.dataAugmentation = dataAugmentation
-        self.tipoImagem = tipoImagem
+        self.data_augmentation = data_augmentation
+        self.arquivo = arquivo
+
+class Requisicao(db.Model):
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+    quantidade_imagens = db.Column(db.String(100), nullable=False)
+    id_clinica = db.Column(db.String(36), db.ForeignKey('clinica.id'), nullable=False)
+    data_hora = db.Column(db.Date, nullable=False)
+    status = db.Column(db.Enum(StatusRequisicao), default=StatusRequisicao.REQUISITADO, nullable=False)
+
+    def __init__(self, id_clinica, data_hora, quantidade_imagens, status=StatusRequisicao.REQUISITADO, id=None):
+        if id is None:
+            self.id = str(uuid.uuid4())
+        else:
+            self.id = id
+        self.quantidade_imagens = quantidade_imagens
+        self.id_clinica = id_clinica
+        self.data_hora = data_hora
+        self.status = status
 
    
 
