@@ -48,27 +48,11 @@ def login_medico_clinica():
     try:
         data = request.json
         senha = data['senha']
-        # Consulta o médico pelo username
-        if data['username']:
-            username = data['username']
-            administrador = Administrador.query.filter_by(username=username).first()
-
-            if administrador and bcrypt.checkpw(senha.encode('utf-8'), administrador.senha.encode('utf-8')):
-                # Gerar um token de autenticação
-                access_token = generate_access_token(administrador.username)
-                administradorJson = {
-                'id': administrador.id,
-                'username' : administrador.username,
-                }
-                return jsonify({'token': access_token,
-                                'data': administradorJson}) 
-        if data['email']:
-            email = data['email']
-            # Consulta o médico pelo email
-            medico = Medico.query.filter_by(email=email).first()
-
-            if medico and bcrypt.checkpw(senha.encode('utf-8'), medico.senha.encode('utf-8')):
-                # Gerar um token de autenticação
+            
+        email = data['email']
+        medico = Medico.query.filter_by(email=email).first()
+        if medico: 
+            if bcrypt.checkpw(senha.encode('utf-8'), medico.senha.encode('utf-8')):
                 access_token = generate_access_token(medico.email)
                 medicoJson = {
                 'id': medico.id,
@@ -89,12 +73,10 @@ def login_medico_clinica():
                 return jsonify({'token': access_token, 'data': medicoJson})  
             else:
                 return jsonify({'error': 'Email ou senha incorretos'}), 401
-        else:
-            # Consulta o médico pelo email
-            cnpj = data['cnpj']
-            clinica = Clinica.query.filter_by(cnpj=cnpj).first()
-            if clinica and bcrypt.checkpw(senha.encode('utf-8'), clinica.senha.encode('utf-8')):
-                # Gerar um token de autenticação
+            
+        clinica = Clinica.query.filter_by(email=email).first()
+        if clinica:
+            if bcrypt.checkpw(senha.encode('utf-8'), clinica.senha.encode('utf-8')):
                 access_token = generate_access_token(clinica.cnpj)
                 clinicaJson = {
                 'id': clinica.id,
@@ -114,7 +96,22 @@ def login_medico_clinica():
                                 'data': clinicaJson})  
             else:
                 return jsonify({'error': 'CNPJ ou senha incorretos'}), 401
+            
+        if data['username']:
+            username = data['username']
+            administrador = Administrador.query.filter_by(username=username).first()
+
+            if administrador and bcrypt.checkpw(senha.encode('utf-8'), administrador.senha.encode('utf-8')):
+                # Gerar um token de autenticação
+                access_token = generate_access_token(administrador.username)
+                administradorJson = {
+                'id': administrador.id,
+                'username' : administrador.username,
+                }
+                return jsonify({'token': access_token,
+                                'data': administradorJson}) 
     except Exception as e:
         print(e)
+        print("123")
         return jsonify({'error': str(e)}), 400
     
