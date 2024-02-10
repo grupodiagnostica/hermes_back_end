@@ -8,7 +8,9 @@ db = SQLAlchemy()
 class StatusRequisicao(Enum):
     REQUISITADO = 'Requisitado'
     ACEITO = 'Aceito'
-    CONCLUIDO = 'Concluído'
+    EM_EXECUCAO = 'Em_Execucao'
+    CONCLUIDO = 'Concluido'
+    FINALIZADO = 'Finalizado'
 
 class Administrador(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
