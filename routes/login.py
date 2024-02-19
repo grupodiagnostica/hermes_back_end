@@ -91,6 +91,7 @@ def login_medico_clinica():
                 'logradouro': clinica.logradouro,
                 'bairro': clinica.bairro,
                 'email': clinica.email,
+                'modelo_id': clinica.modelo_id,
                 }
                 return jsonify({'token': access_token,
                                 'data': clinicaJson})  
