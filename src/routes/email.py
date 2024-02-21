@@ -58,7 +58,6 @@ def email_requisicao():
 
         s = smtplib.SMTP('smtp.gmail.com: 587')
         s.starttls()
-        # Login Credentials for sending the mail
         s.login(msg['From'], password)
         s.sendmail(msg['From'], [msg['To']], msg.as_string().encode('utf-8'))
         return jsonify({'message': 'Email enviado com sucesso'}), 201

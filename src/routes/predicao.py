@@ -10,7 +10,6 @@ from PIL import Image
 import io
 import base64
 import cv2
-import scipy as sp
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,21 +18,16 @@ from src.utils.camResult import cam_result
 predicao_bp = Blueprint('predicao', __name__)
 
 # Carrega o modelo .h5
-diretorio_modelos = '../../models'
-models = glob.glob(f'{diretorio_modelos}/model*.h5')
+diretorio_modelos = './models'
 
-
-@predicao_bp.route('/predict/<int:model_id>', methods=['POST'])
+@predicao_bp.route('/predict/<string:model_id>', methods=['POST'])
 @token_required
 def predict(model_id):
     try:    
-        id = model_id
-        modelo = Modelo.query.filter(Modelo.id == id).first()
-        print(models)
-        print(modelo.arquivo)
+        modelo = Modelo.query.get(model_id)
         if modelo:
 
-            model_path = diretorio_modelos + modelo.arquivo
+            model_path = diretorio_modelos + "/" + modelo.arquivo
             model = tf.keras.models.load_model(model_path)
 
             image_orig = request.files['image'].read()

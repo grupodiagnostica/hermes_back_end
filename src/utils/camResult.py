@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sp
 
 def cam_result(features, results, gap_weights) -> tuple:
   classes = ['PNEUMONIA', 'COVID19', 'TUBERCULOSE', 'NORMAL']
