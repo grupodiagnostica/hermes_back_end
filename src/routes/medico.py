@@ -185,7 +185,7 @@ def update_medico(medico_id):
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir um médico
-@medico_bp.route('/<string:medico_id>', methods=['DELETE'])
+@medico_bp.route('/medico/<string:medico_id>', methods=['DELETE'])
 @token_required
 def delete_medico(medico_id):
     try:
