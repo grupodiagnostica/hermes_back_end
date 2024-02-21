@@ -80,7 +80,7 @@ def update_clinica(clinica_id):
                 'bairro': clinica.bairro,
                 'email': clinica.email,
                 'modelo_id': clinica.modelo_id,
-                }
+        }
         return jsonify({'data': clinicaJson})
     except Exception as e:
         return jsonify({'error': str(e)}), 400

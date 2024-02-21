@@ -99,7 +99,7 @@ def get_clinicas_medico(medico_id):
             'email' : clinica.email,
             'nome' : clinica.nome,
             'foto_perfil': clinica.foto_perfil,
-            
+            'modelo_id': clinica.modelo_id, 
         } for clinica in clinicas]
         return jsonify({"data":clinicasJson})
     else:
