@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import db, Medico
 import bcrypt
-from routes.login import token_required
+from src.middleware.token import token_required
 from dotenv import load_dotenv
 load_dotenv()
 

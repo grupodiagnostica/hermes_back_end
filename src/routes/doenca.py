@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models import db, Doenca
-from routes.login import token_required
+from src.middleware.token import token_required
 doenca_bp = Blueprint('doenca', __name__)
 
 # Rota para criar uma nova doença

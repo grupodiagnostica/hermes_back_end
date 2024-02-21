@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models import Pessoa,db
-from routes.login import token_required
+from src.middleware.token import token_required
 pessoa_bp = Blueprint('pessoa', __name__)
 
 @pessoa_bp.route('/pessoa', methods=['POST'])

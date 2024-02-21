@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy import desc
 from models import StatusRequisicao, db, Requisicao
-from routes.login import token_required
+from src.middleware.token import token_required
 requisicao_bp = Blueprint('requisicao', __name__)
 
 # Rota para criar um novo requisicao
@@ -21,15 +21,12 @@ def create_requisicao():
 @token_required
 def get_requisicaos():
     try:
-        # Obtenha os parâmetros de consulta da URL
         id = request.args.get('id')
         id_clinica = request.args.get('id_clinica')
         status = request.args.get('status')
 
-        # Consulta inicial para todos os requisicaos
         query = Requisicao.query
 
-        # Filtre a consulta com base nos parâmetros de consulta
         if id:
             query = query.filter(Requisicao.id == id)
         if id_clinica:
@@ -40,7 +37,6 @@ def get_requisicaos():
         query = query.order_by(desc(Requisicao.data_hora))
         requisicaos = query.all()
 
-        # Converta os resultados em um formato JSON
         requisicaos_list = []
         for requisicao in requisicaos:
             requisicaos_list.append({
@@ -48,10 +44,11 @@ def get_requisicaos():
                 'quantidade_imagens': requisicao.quantidade_imagens,
                 'id_clinica': requisicao.id_clinica,
                 'data_hora': f'{requisicao.data_hora.day}/{requisicao.data_hora.month}/{requisicao.data_hora.year}' ,
-                'status': requisicao.status.value  # Adicione o status à resposta JSON
+                'status': requisicao.status.value  
             })
         return jsonify({'data': requisicaos_list}), 200
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 

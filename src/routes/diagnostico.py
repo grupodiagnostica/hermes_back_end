@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from models import db, Diagnostico
 from sqlalchemy import extract
 from datetime import datetime
-from routes.login import token_required
+from src.middleware.token import token_required
 from sqlalchemy import desc
 diagnostico_bp = Blueprint('diagnostico', __name__)
 

@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 from models import Clinica, Medico
 from models import db
-from routes.login import token_required
+from src.middleware.token import token_required
 
 clinica_bp = Blueprint('clinica', __name__)
 
@@ -25,23 +25,18 @@ def create_clinica():
 @clinica_bp.route('/clinica', methods=['GET'])
 @token_required
 def get_clinicas():
-    # Obtenha os parâmetros de consulta da URL
     cnpj = request.args.get('cnpj')
     nome = request.args.get('nome')
 
-    # Consulta inicial para todas as clínicas
     query = Clinica.query
 
-    # Filtre a consulta com base nos parâmetros de consulta
     if cnpj:
         query = query.filter(Clinica.cnpj == cnpj)
     if nome:
         query = query.filter(Clinica.nome.ilike(f"%{nome}%"))
 
-    # Execute a consulta
     clinicas = query.all()
 
-    # Converta os resultados em um formato JSON
     clinicas_list = []
     for clinica in clinicas:
         clinicas_list.append({
@@ -107,12 +102,10 @@ def create_medico_clinica(clinica_id):
             return jsonify({'message': 'Clínica não encontrada'}), 404
 
         data = request.json
-        # Criptografa a senha
         senha_criptografada = bcrypt.hashpw(data['senha'].encode('utf-8'), bcrypt.gensalt())
         data['senha'] = senha_criptografada.decode('utf-8')
         novo_medico =  Medico(**data)
         novo_medico.clinicas.append(clinica)
-        # clinica.medicos.append(novo_medico)
         db.session.add(novo_medico)
         db.session.commit()
 

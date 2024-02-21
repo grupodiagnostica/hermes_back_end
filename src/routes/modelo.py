@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models import db, Modelo
-from routes.login import token_required
+from src.middleware.token import token_required
 modelo_bp = Blueprint('modelo', __name__)
 
 # Rota para criar um novo modelo
@@ -14,6 +14,7 @@ def create_modelo():
         db.session.commit()
         return jsonify({'message': 'Modelo criado com sucesso'}), 201
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 # Rota para obter modelos com filtros
