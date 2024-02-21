@@ -27,8 +27,7 @@ models = glob.glob(f'{diretorio_modelos}/model*.h5')
 @token_required
 def predict(model_id):
     try:    
-
-        id = request.args.get('id')
+        id = model_id
         modelo = Modelo.query.filter(Modelo.id == id).first()
         print(models)
         print(modelo.arquivo)

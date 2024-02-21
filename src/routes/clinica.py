@@ -44,9 +44,10 @@ def get_clinicas():
             'cnpj': clinica.cnpj,
             'nome': clinica.nome,
             'modelo_id': clinica.modelo_id,
+            'email': clinica.email,
         })
 
-    return jsonify(clinicas_list)
+    return jsonify({'data': clinicas_list})
 
 
 # Rota para atualizar os dados de uma clínica
