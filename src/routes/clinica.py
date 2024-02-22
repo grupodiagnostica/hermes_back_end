@@ -165,3 +165,30 @@ def update_medico_clinica(clinica_id):
     except Exception as e:
         print(e)
         return jsonify({'message': 'Erro ao criar o médico'}), 200
+    
+
+@clinica_bp.route('/clinica/<string:clinica_id>/medico/<string:medico_id>', methods=['DELETE'])
+def delete_medico_clinica(clinica_id, medico_id):
+    try:
+        clinica = Clinica.query.get(clinica_id)
+
+        if not clinica:
+            return jsonify({'message': 'Clínica não encontrada'}), 404
+
+        medico = Medico.query.get(medico_id)
+
+        if not medico:
+            return jsonify({'message': 'Médico não encontrado'}), 404
+
+        if clinica not in medico.clinicas:
+            return jsonify({'message': 'Médico não está associado a esta clínica'}), 404
+
+        medico.clinicas.remove(clinica)
+        db.session.commit()
+
+        return jsonify({'message': 'Médico removido da clínica com sucesso'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Erro ao deletar o médico'}), 500
+
