@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Diagnostico
+from models import db, Diagnostico, Modelo
 from sqlalchemy import extract
 from datetime import datetime
 from src.middleware.token import token_required
@@ -214,25 +214,26 @@ def diagnostico_atendimentos(anoRef):
         return jsonify({'error': str(e)}), 400
     
 # Rota enviar o número convergências e divergências entre médicos e modelo
-@diagnostico_bp.route('/diagnostico/classificacoes/<string:modelo>', methods=['POST'])
+@diagnostico_bp.route('/diagnostico/classificacoes', methods=['POST'])
 @token_required
-def diagnostico_classificacoes(modelo):
+def diagnostico_classificacoes():
     try:
         args = request.json
-        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id']).all()
-        if not diagnosticos:
+        modelo = Modelo.query.get(args['modelo_id'])
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id'])
+        diagnosticos = diagnosticos.filter(Diagnostico.modelo == args['modelo_id']).all()
+        if not diagnosticos and not modelo:
             return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
 
         labels = ['Convergente', 'Divergente']
         classificacoes = [0, 0]
-
         for diagnostico in diagnosticos:
             if diagnostico.resultado_real == diagnostico.resultado_modelo:
                 classificacoes[0] += 1
             else:
                 classificacoes[1] += 1
 
-        return jsonify({'result': 1, 'labels': labels, 'data': classificacoes}), 200
+        return jsonify({'result': 1, 'labels': labels, 'data': classificacoes, 'modelo': modelo.nome}), 200
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 400
@@ -275,8 +276,10 @@ def diagnostico_diagnosticos(anoRef):
 def diagnostico_diagnosticos_classificacoes():
     try:
         args = request.json
-        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id']).all()
-        if not diagnosticos:
+        modelo = Modelo.query.get(args['modelo_id'])
+        diagnosticos = Diagnostico.query.filter(Diagnostico.id_clinica == args['clinica_id'])
+        diagnosticos = diagnosticos.filter(Diagnostico.modelo == args['modelo_id']).all()
+        if not diagnosticos and not modelo:
             return jsonify({'message': 'Não existem diagnósticos', 'result': 0}), 200
 
         labels = ['Diagnósticos', 'Classificações']
@@ -290,7 +293,7 @@ def diagnostico_diagnosticos_classificacoes():
                 index = classes.index(diagnostico.resultado_modelo)
                 num_casos[1][index] += 1
 
-        return jsonify({'result': 1, 'labels': labels, 'classes': classes, 'data': num_casos}), 200
+        return jsonify({'result': 1, 'labels': labels, 'classes': classes, 'data': num_casos, 'modelo': modelo.nome}), 200
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 400
