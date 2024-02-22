@@ -43,7 +43,7 @@ def get_requisicaos():
                 'id': requisicao.id,
                 'quantidade_imagens': requisicao.quantidade_imagens,
                 'id_clinica': requisicao.id_clinica,
-                'data_hora': f'{requisicao.data_hora.day}/{requisicao.data_hora.month}/{requisicao.data_hora.year}' ,
+                'data_hora': requisicao.data_hora ,
                 'status': requisicao.status.value  
             })
         return jsonify({'data': requisicaos_list}), 200
@@ -63,11 +63,11 @@ def update_requisicao(requisicao_id):
         requisicao = Requisicao.query.get(requisicao_id)
         if not requisicao:
             return jsonify({'error': 'requisicao não encontrado'}), 404
-        for key, value in data.items():
-            setattr(requisicao, key, value)
+        setattr(requisicao, 'status', data['status'])
         db.session.commit()
         return jsonify({'message': 'Dados do requisicao atualizados com sucesso'})
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 400
 
 # Rota para excluir um requisicao
