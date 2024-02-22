@@ -63,7 +63,8 @@ def update_requisicao(requisicao_id):
         requisicao = Requisicao.query.get(requisicao_id)
         if not requisicao:
             return jsonify({'error': 'requisicao não encontrado'}), 404
-        setattr(requisicao, 'status', data['status'])
+        for key, value in data.items():
+            setattr(requisicao, key, value)
         db.session.commit()
         return jsonify({'message': 'Dados do requisicao atualizados com sucesso'})
     except Exception as e:
